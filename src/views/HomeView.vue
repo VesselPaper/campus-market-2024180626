@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { ElRow, ElCol, ElCard, ElTag, ElButton, ElStatistic } from 'element-plus'
+import { ElRow, ElCol, ElCard, ElTag, ElButton, ElStatistic, ElAlert, ElSkeleton } from 'element-plus'
 import { useUserStore } from '@/stores/userStore'
 import { useItemStore } from '@/stores/itemStore'
 import { useFavoriteStore } from '@/stores/favoriteStore'
@@ -19,14 +19,18 @@ const favoriteStore = useFavoriteStore()
 const messageStore = useMessageStore()
 
 const recentItems = ref<Item[]>([])
+const loaded = ref(false)
 
 onMounted(async () => {
   await itemStore.fetchItems()
   recentItems.value = calcRecentItems(itemStore.items)
   if (userStore.currentUser) {
-    await favoriteStore.fetchFavorites()
-    await messageStore.fetchConversations()
+    await Promise.all([
+      favoriteStore.fetchFavorites(),
+      messageStore.fetchConversations(),
+    ])
   }
+  loaded.value = true
 })
 
 function goToList(type?: string) {
@@ -52,6 +56,16 @@ const typeIcons: Record<string, string> = {
 
 <template>
   <div class="home-page">
+    <!-- 错误提示 -->
+    <ElAlert
+      v-if="itemStore.error"
+      :title="itemStore.error"
+      type="warning"
+      show-icon
+      :closable="true"
+      style="margin-bottom: 16px"
+    />
+
     <!-- 欢迎信息 -->
     <ElCard class="welcome-card">
       <div class="welcome-content">
@@ -63,7 +77,7 @@ const typeIcons: Record<string, string> = {
           </p>
           <p v-else>请先创建你的本地身份，开始校园集市之旅</p>
         </div>
-        <div class="welcome-stats">
+        <div class="welcome-stats" v-if="loaded">
           <ElStatistic title="信息总数" :value="itemStore.items.length" />
           <ElStatistic title="我的收藏" :value="favoriteStore.favorites.length" />
           <ElStatistic title="未读消息" :value="messageStore.getUnreadCount()" />
@@ -97,15 +111,19 @@ const typeIcons: Record<string, string> = {
       <template #header>
         <span style="font-weight: 600">最新发布</span>
       </template>
-      <div v-if="recentItems.length > 0">
-        <MarketItemCard
-          v-for="item in recentItems"
-          :key="item.id"
-          :item="item"
-          @click="goToDetail"
-        />
-      </div>
-      <ElTag v-else type="info">暂无信息</ElTag>
+      <ElSkeleton :loading="itemStore.loading" :count="3" animated>
+        <template #default>
+          <div v-if="recentItems.length > 0">
+            <MarketItemCard
+              v-for="item in recentItems"
+              :key="item.id"
+              :item="item"
+              @click="goToDetail"
+            />
+          </div>
+          <ElTag v-else type="info">暂无信息，请先启动 JSON Server</ElTag>
+        </template>
+      </ElSkeleton>
     </ElCard>
 
     <!-- 安全提醒 -->

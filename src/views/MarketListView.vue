@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { onMounted, ref, watch } from 'vue'
+import { onMounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { ElEmpty, ElPagination } from 'element-plus'
+import { ElEmpty, ElPagination, ElAlert, ElSkeleton } from 'element-plus'
 import { useItemStore } from '@/stores/itemStore'
 import MarketItemCard from '@/components/MarketItemCard.vue'
 import MarketFilterBar from '@/components/MarketFilterBar.vue'
@@ -43,12 +43,28 @@ const paginatedItems = () => {
 <template>
   <div class="market-list-page">
     <h2>集市信息</h2>
+
+    <ElAlert
+      v-if="itemStore.error"
+      :title="itemStore.error"
+      type="warning"
+      show-icon
+      :closable="true"
+      style="margin-bottom: 12px"
+    />
+
     <MarketFilterBar @search="handleSearch" />
-    <div v-if="itemStore.loading" class="loading">加载中...</div>
+
+    <div v-if="itemStore.loading" class="loading">
+      <ElSkeleton :count="3" animated />
+    </div>
     <div v-else-if="itemStore.items.length === 0" class="empty-state">
-      <ElEmpty description="暂无匹配的信息" />
+      <ElEmpty :description="itemStore.error ? '请确认 JSON Server 是否启动' : '暂无匹配的信息'" />
     </div>
     <div v-else>
+      <div style="margin-bottom: 8px; color: #999; font-size: 13px">
+        共 {{ itemStore.items.length }} 条信息
+      </div>
       <MarketItemCard
         v-for="item in paginatedItems()"
         :key="item.id"
@@ -74,9 +90,7 @@ const paginatedItems = () => {
   padding: 20px;
 }
 .loading {
-  text-align: center;
-  padding: 40px;
-  color: #999;
+  padding: 20px;
 }
 .empty-state {
   text-align: center;

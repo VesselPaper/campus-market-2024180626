@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { onMounted, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { ElCard, ElTag, ElButton, ElDescriptions, ElDescriptionsItem, ElImage, ElMessage } from 'element-plus'
+import { ElCard, ElTag, ElButton, ElDescriptions, ElDescriptionsItem, ElImage, ElMessage, ElAlert, ElSkeleton } from 'element-plus'
 import { useItemStore } from '@/stores/itemStore'
 import { useUserStore } from '@/stores/userStore'
 import { ITEM_TYPES } from '@/utils/constants'
@@ -18,11 +18,10 @@ onMounted(async () => {
   const id = Number(route.params.id)
   if (id) {
     await itemStore.fetchItemById(id)
-    // 增加浏览量
     if (itemStore.currentItem) {
       await itemStore.editItem(id, {
         viewCount: (itemStore.currentItem.viewCount || 0) + 1,
-      })
+      }).catch(() => {})
     }
   }
 })
@@ -62,11 +61,27 @@ function goBack() {
 <template>
   <div class="detail-page">
     <ElButton @click="goBack" style="margin-bottom: 16px">← 返回</ElButton>
-    <div v-if="!item" class="loading">加载中...</div>
+
+    <ElAlert
+      v-if="itemStore.error"
+      :title="itemStore.error"
+      type="warning"
+      show-icon
+      style="margin-bottom: 16px"
+    />
+
+    <div v-if="itemStore.loading" class="loading">
+      <ElSkeleton :count="5" animated />
+    </div>
+    <div v-else-if="!item" class="loading">未找到该信息</div>
     <div v-else>
       <ElCard>
         <div class="detail-header">
           <h2>{{ item.title }}</h2>
+          <div class="detail-meta">
+            <span>浏览 {{ item.viewCount }}</span>
+            <span>收藏 {{ item.favoriteCount }}</span>
+          </div>
           <div class="detail-tags">
             <ElTag>{{ typeLabel }}</ElTag>
             <ElTag type="info">{{ item.status }}</ElTag>
@@ -91,7 +106,6 @@ function goBack() {
             <ElDescriptionsItem label="发布人">{{ publisherName }}</ElDescriptionsItem>
             <ElDescriptionsItem label="发布时间">{{ formatDate(item.createdAt) }}</ElDescriptionsItem>
 
-            <!-- 二手交易 -->
             <ElDescriptionsItem label="价格" v-if="item.type === 'secondhand' && item.price">
               ¥{{ item.price }}
             </ElDescriptionsItem>
@@ -99,7 +113,6 @@ function goBack() {
               {{ item.condition }}
             </ElDescriptionsItem>
 
-            <!-- 失物招领 -->
             <ElDescriptionsItem label="类型" v-if="item.type === 'lostfound'">
               {{ item.lostOrFound === 'lost' ? '丢失' : '捡到' }}
             </ElDescriptionsItem>
@@ -110,7 +123,6 @@ function goBack() {
               {{ item.itemFeature }}
             </ElDescriptionsItem>
 
-            <!-- 拼单搭子 -->
             <ElDescriptionsItem label="目标人数" v-if="item.type === 'group' && item.targetCount">
               {{ item.currentCount || 1 }}/{{ item.targetCount }} 人
             </ElDescriptionsItem>
@@ -118,14 +130,13 @@ function goBack() {
               {{ item.deadline }}
             </ElDescriptionsItem>
 
-            <!-- 跑腿委托 -->
             <ElDescriptionsItem label="酬劳" v-if="item.type === 'errand' && item.reward">
               ¥{{ item.reward }}
             </ElDescriptionsItem>
             <ElDescriptionsItem label="任务地点" v-if="item.type === 'errand' && item.taskPlace">
               {{ item.taskPlace }}
             </ElDescriptionsItem>
-            <ElDescriptionsItem label="期望完成时间" v-if="item.type === 'errand' && item.expectedTime">
+            <ElDescriptionsItem label="期望完成" v-if="item.type === 'errand' && item.expectedTime">
               {{ item.expectedTime }}
             </ElDescriptionsItem>
           </ElDescriptions>
@@ -138,11 +149,12 @@ function goBack() {
 
         <div class="detail-actions">
           <FavoriteButton :item-id="item.id" />
-          <ElButton type="primary" @click="goToMessage">联系发布者</ElButton>
+          <ElButton type="primary" @click="goToMessage" :disabled="!userStore.currentUser">
+            联系发布者
+          </ElButton>
         </div>
       </ElCard>
 
-      <!-- 砍价面板 -->
       <BargainPanel
         v-if="item.type === 'secondhand' && item.price"
         :item-id="item.id"
@@ -160,7 +172,6 @@ function goBack() {
   padding: 20px;
 }
 .loading {
-  text-align: center;
   padding: 40px;
   color: #999;
 }
@@ -168,7 +179,14 @@ function goBack() {
   margin-bottom: 16px;
 }
 .detail-header h2 {
-  margin: 0 0 8px;
+  margin: 0 0 4px;
+}
+.detail-meta {
+  font-size: 13px;
+  color: #999;
+  margin-bottom: 8px;
+  display: flex;
+  gap: 16px;
 }
 .detail-tags {
   display: flex;
