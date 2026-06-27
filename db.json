@@ -322,6 +322,25 @@
       "expectedTime": "2026-06-24 17:00 前",
       "createdAt": "2026-06-23 08:30:00",
       "updatedAt": "2026-06-24 15:00:00"
+    },
+    {
+      "type": "secondhand",
+      "title": "卖小孩",
+      "description": "二手",
+      "campus": "北校区",
+      "location": "",
+      "tags": [],
+      "images": [],
+      "status": "进行中",
+      "viewCount": 1,
+      "favoriteCount": 0,
+      "createdAt": "2026-06-27 15:58:53",
+      "updatedAt": "2026-06-27 15:58:53",
+      "price": 3,
+      "condition": "全新",
+      "allowBargain": true,
+      "publisherId": 5,
+      "id": 13
     }
   ],
   "favorites": [

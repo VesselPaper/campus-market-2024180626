@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { ref, onMounted, watch, shallowRef } from 'vue'
-import { ElCard } from 'element-plus'
+import { ref, onMounted, onUnmounted, watch, shallowRef, nextTick } from 'vue'
+import { ElCard, ElEmpty } from 'element-plus'
 import * as echarts from 'echarts'
 
 const props = defineProps<{
@@ -10,35 +10,60 @@ const props = defineProps<{
 
 const chartRef = ref<HTMLDivElement>()
 const chartInstance = shallowRef<echarts.ECharts | null>(null)
+const hasData = ref(false)
+
+function hasValidData(opt: echarts.EChartsOption): boolean {
+  const series = (opt as any)?.series
+  if (!series) return false
+  const seriesList = Array.isArray(series) ? series : [series]
+  return seriesList.some((s: any) => s?.data && s.data.length > 0)
+}
 
 function initChart() {
   if (!chartRef.value) return
   if (chartInstance.value) {
     chartInstance.value.dispose()
   }
-  const instance = echarts.init(chartRef.value)
+  const instance = echarts.init(chartRef.value, undefined, { renderer: 'canvas' })
   chartInstance.value = instance
   instance.setOption(props.option)
+  hasData.value = hasValidData(props.option)
 }
 
 function resizeChart() {
   chartInstance.value?.resize()
 }
 
-onMounted(() => {
+onMounted(async () => {
+  await nextTick()
   initChart()
   window.addEventListener('resize', resizeChart)
 })
 
-watch(() => props.option, () => {
-  chartInstance.value?.setOption(props.option, true)
+onUnmounted(() => {
+  window.removeEventListener('resize', resizeChart)
+  chartInstance.value?.dispose()
+})
+
+watch(() => props.option, async (opt) => {
+  await nextTick()
+  if (chartInstance.value) {
+    chartInstance.value.setOption(opt, true)
+    chartInstance.value.resize()
+  } else {
+    initChart()
+  }
+  hasData.value = hasValidData(opt)
 }, { deep: true })
 </script>
 
 <template>
   <ElCard class="chart-panel">
-    <h3 class="chart-title">{{ title }}</h3>
-    <div ref="chartRef" class="chart-container"></div>
+    <template #header>
+      <span class="chart-title">{{ title }}</span>
+    </template>
+    <div v-if="hasData" ref="chartRef" class="chart-container"></div>
+    <ElEmpty v-else description="暂无数据" :image-size="80" />
   </ElCard>
 </template>
 
@@ -47,8 +72,8 @@ watch(() => props.option, () => {
   margin-bottom: 20px;
 }
 .chart-title {
-  margin: 0 0 12px;
-  font-size: 16px;
+  font-weight: 600;
+  font-size: 15px;
 }
 .chart-container {
   width: 100%;
