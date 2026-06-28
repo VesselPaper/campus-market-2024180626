@@ -4,16 +4,16 @@ import { SAFETY_NOTICES } from '@/utils/constants'
 </script>
 
 <template>
-  <ElCard class="safety-notice">
+  <ElCard class="safety-notice" body-class="safety-body">
     <template #header>
       <div class="safety-header">
-        <span style="font-weight: 600">🔒 交易安全提醒</span>
-        <ElTag type="warning" size="small">校园安全提示</ElTag>
+        <span class="safety-title">🔒 交易安全提醒</span>
+        <ElTag class="safety-tag" size="small">校园安全提示</ElTag>
       </div>
     </template>
-    <ElCollapse>
+    <ElCollapse accordion>
       <ElCollapseItem v-for="(notice, i) in SAFETY_NOTICES" :key="i" :title="notice.title">
-        <p>{{ notice.content }}</p>
+        <p class="safety-content">{{ notice.content }}</p>
       </ElCollapseItem>
     </ElCollapse>
   </ElCard>
@@ -21,11 +21,39 @@ import { SAFETY_NOTICES } from '@/utils/constants'
 
 <style scoped>
 .safety-notice {
-  margin-top: 16px;
+  margin-top: 20px;
+  border-radius: var(--radius-lg) !important;
+  border: 1px solid var(--c-accent-soft) !important;
+  background: linear-gradient(135deg, #FFFCF5, #FFF8E0) !important;
 }
+
+.safety-body {
+  padding: 0 20px 16px !important;
+}
+
 .safety-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
+}
+
+.safety-title {
+  font-weight: 600;
+  font-size: 15px;
+  color: #D4A017;
+}
+
+.safety-tag {
+  background: var(--c-accent-soft) !important;
+  color: #D4A017 !important;
+  border: none !important;
+}
+
+.safety-content {
+  font-size: 14px;
+  color: var(--c-text-secondary);
+  line-height: 1.7;
+  margin: 0;
+  padding: 4px 0;
 }
 </style>

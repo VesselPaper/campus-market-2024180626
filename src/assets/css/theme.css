@@ -1,0 +1,248 @@
+/* ═══════════════════════════════════════
+   校园轻集市 — Design System
+   风格: 暖橙活力 · 圆润柔和 · 年轻化
+   ═══════════════════════════════════════ */
+
+:root {
+  /* ── Colors ── */
+  --c-primary: #FF6B35;
+  --c-primary-light: #FF8F5E;
+  --c-primary-lighter: #FFF0E8;
+  --c-primary-dark: #E55A2B;
+
+  --c-secondary: #00B4D8;
+  --c-secondary-light: #E6F7FC;
+
+  --c-accent: #FFD166;
+  --c-accent-soft: #FFF8E0;
+
+  --c-bg: #FFF9F5;
+  --c-bg-card: #FFFFFF;
+  --c-bg-hover: #FFF5EE;
+  --c-bg-dark: #F5EDE8;
+
+  --c-text: #2D3436;
+  --c-text-secondary: #636E72;
+  --c-text-muted: #B2BEC3;
+
+  --c-border: #F0E8E0;
+  --c-border-light: #F8F0E8;
+
+  --c-success: #00B894;
+  --c-warning: #FDCB6E;
+  --c-danger: #FF6B6B;
+  --c-info: #74B9FF;
+
+  /* ── Shadows ── */
+  --shadow-sm: 0 2px 8px rgba(255, 107, 53, 0.06);
+  --shadow-md: 0 4px 20px rgba(255, 107, 53, 0.08);
+  --shadow-lg: 0 8px 40px rgba(255, 107, 53, 0.12);
+  --shadow-card: 0 2px 16px rgba(0, 0, 0, 0.04);
+
+  /* ── Radius ── */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
+  --radius-full: 9999px;
+
+  /* ── Typography ── */
+  --font-sans: 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-display: 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+
+  /* ── Spacing ── */
+  --space-xs: 4px;
+  --space-sm: 8px;
+  --space-md: 16px;
+  --space-lg: 24px;
+  --space-xl: 32px;
+  --space-2xl: 48px;
+
+  /* ── Transitions ── */
+  --transition-fast: 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-base: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-slow: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-spring: 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* ── Global Styles ── */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: var(--font-sans);
+  background-color: var(--c-bg);
+  color: var(--c-text);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ── Scrollbar ── */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--c-text-muted);
+  border-radius: 3px;
+}
+
+/* ── Animations ── */
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideInRight {
+  from { opacity: 0; transform: translateX(20px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(255, 107, 53, 0.3); }
+  50% { box-shadow: 0 0 0 8px rgba(255, 107, 53, 0); }
+}
+
+.animate-fade-in-up {
+  animation: fadeInUp 0.5s ease both;
+}
+.animate-fade-in {
+  animation: fadeIn 0.4s ease both;
+}
+.animate-scale-in {
+  animation: scaleIn 0.3s ease both;
+}
+
+/* ── Element Plus Override ── */
+.el-card {
+  border: none !important;
+  border-radius: var(--radius-lg) !important;
+  box-shadow: var(--shadow-card) !important;
+  transition: var(--transition-base) !important;
+}
+.el-card:hover {
+  box-shadow: var(--shadow-md) !important;
+}
+
+.el-button--primary {
+  --el-button-bg-color: var(--c-primary) !important;
+  --el-button-border-color: var(--c-primary) !important;
+  --el-button-hover-bg-color: var(--c-primary-light) !important;
+  --el-button-hover-border-color: var(--c-primary-light) !important;
+  --el-button-active-bg-color: var(--c-primary-dark) !important;
+  border-radius: var(--radius-full) !important;
+  font-weight: 600 !important;
+  padding: 10px 24px !important;
+  transition: var(--transition-base) !important;
+}
+.el-button--primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(255, 107, 53, 0.3) !important;
+}
+
+.el-button--success {
+  --el-button-bg-color: var(--c-success) !important;
+  --el-button-border-color: var(--c-success) !important;
+  border-radius: var(--radius-full) !important;
+  font-weight: 600 !important;
+}
+
+.el-button--default {
+  border-radius: var(--radius-full) !important;
+  border-color: var(--c-border) !important;
+  color: var(--c-text-secondary) !important;
+  font-weight: 500 !important;
+  transition: var(--transition-base) !important;
+}
+.el-button--default:hover {
+  border-color: var(--c-primary) !important;
+  color: var(--c-primary) !important;
+  background: var(--c-primary-lighter) !important;
+}
+
+.el-tag {
+  border-radius: var(--radius-full) !important;
+  border: none !important;
+  font-weight: 500 !important;
+  padding: 0 12px !important;
+  height: 26px !important;
+  line-height: 26px !important;
+}
+.el-tag--danger {
+  background: #FFF0E8 !important;
+  color: var(--c-primary) !important;
+}
+.el-tag--warning {
+  background: var(--c-accent-soft) !important;
+  color: #D4A017 !important;
+}
+.el-tag--success {
+  background: #E6F9F4 !important;
+  color: var(--c-success) !important;
+}
+.el-tag--info {
+  background: var(--c-bg-dark) !important;
+  color: var(--c-text-secondary) !important;
+}
+
+.el-input__wrapper {
+  border-radius: var(--radius-md) !important;
+  box-shadow: 0 0 0 1px var(--c-border) inset !important;
+  transition: var(--transition-base) !important;
+}
+.el-input__wrapper:hover {
+  box-shadow: 0 0 0 1px var(--c-primary-light) inset !important;
+}
+.el-input__wrapper.is-focus {
+  box-shadow: 0 0 0 2px var(--c-primary) inset !important;
+}
+
+.el-select .el-input__wrapper {
+  border-radius: var(--radius-md) !important;
+}
+
+.el-pagination {
+  --el-pagination-button-bg-color: transparent !important;
+}
+.el-pagination button {
+  border-radius: var(--radius-sm) !important;
+}
+
+.el-empty__description p {
+  color: var(--c-text-muted) !important;
+}
+
+.el-alert {
+  border-radius: var(--radius-md) !important;
+  border: none !important;
+}
+
+.el-skeleton__item {
+  border-radius: var(--radius-md) !important;
+}

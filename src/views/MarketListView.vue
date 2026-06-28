@@ -42,7 +42,10 @@ const paginatedItems = () => {
 
 <template>
   <div class="market-list-page">
-    <h2>集市信息</h2>
+    <div class="page-header">
+      <h2 class="page-title">集市信息</h2>
+      <span class="page-count" v-if="!itemStore.loading">共 {{ itemStore.items.length }} 条</span>
+    </div>
 
     <ElAlert
       v-if="itemStore.error"
@@ -50,21 +53,21 @@ const paginatedItems = () => {
       type="warning"
       show-icon
       :closable="true"
-      style="margin-bottom: 12px"
+      class="page-alert"
     />
 
-    <MarketFilterBar @search="handleSearch" />
+    <div class="filter-section">
+      <MarketFilterBar @search="handleSearch" />
+    </div>
 
-    <div v-if="itemStore.loading" class="loading">
+    <div v-if="itemStore.loading" class="loading-section">
       <ElSkeleton :count="3" animated />
     </div>
     <div v-else-if="itemStore.items.length === 0" class="empty-state">
-      <ElEmpty :description="itemStore.error ? '请确认 JSON Server 是否启动' : '暂无匹配的信息'" />
+      <ElEmpty :description="itemStore.error ? '请确认 JSON Server 是否启动' : '暂无匹配的信息'" :image-size="100" />
+      <p class="empty-hint" v-if="!itemStore.error">试试调整筛选条件</p>
     </div>
-    <div v-else>
-      <div style="margin-bottom: 8px; color: #999; font-size: 13px">
-        共 {{ itemStore.items.length }} 条信息
-      </div>
+    <div v-else class="item-list">
       <MarketItemCard
         v-for="item in paginatedItems()"
         :key="item.id"
@@ -77,6 +80,7 @@ const paginatedItems = () => {
           :page-size="pageSize"
           :total="itemStore.items.length"
           layout="prev, pager, next"
+          background
         />
       </div>
     </div>
@@ -85,20 +89,68 @@ const paginatedItems = () => {
 
 <style scoped>
 .market-list-page {
-  max-width: 1000px;
+  max-width: 960px;
   margin: 0 auto;
-  padding: 20px;
+  padding: 24px 20px 40px;
 }
-.loading {
-  padding: 20px;
+
+.page-header {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  margin-bottom: 20px;
 }
+
+.page-title {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--c-text);
+  margin: 0;
+}
+
+.page-count {
+  font-size: 13px;
+  color: var(--c-text-muted);
+}
+
+.page-alert {
+  margin-bottom: 16px;
+  border-radius: var(--radius-md) !important;
+}
+
+.filter-section {
+  background: #fff;
+  border-radius: var(--radius-lg);
+  padding: 8px 16px;
+  margin-bottom: 20px;
+  border: 1px solid var(--c-border-light);
+  box-shadow: var(--shadow-sm);
+}
+
+.loading-section {
+  padding: 40px 20px;
+}
+
 .empty-state {
   text-align: center;
-  padding: 60px 0;
+  padding: 80px 20px;
 }
+
+.empty-hint {
+  margin-top: 12px;
+  color: var(--c-text-muted);
+  font-size: 14px;
+}
+
+.item-list {
+  animation: fadeIn 0.4s ease both;
+}
+
 .pagination-wrap {
   display: flex;
   justify-content: center;
-  margin-top: 20px;
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid var(--c-border-light);
 }
 </style>

@@ -1,27 +1,34 @@
 <script setup lang="ts">
 import { onMounted, ref, computed } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
-import { ElMenu, ElMenuItem, ElContainer, ElHeader, ElMain, ElFooter, ElButton, ElDropdown, ElDropdownMenu, ElDropdownItem } from 'element-plus'
+import { ElMenu, ElMenuItem, ElContainer, ElHeader, ElMain, ElFooter, ElButton, ElDropdown, ElDropdownMenu, ElDropdownItem, ElBadge } from 'element-plus'
 import { useUserStore } from '@/stores/userStore'
+import { useMessageStore } from '@/stores/messageStore'
 
 const router = useRouter()
 const route = useRoute()
 const userStore = useUserStore()
+const messageStore = useMessageStore()
 const ready = ref(false)
 
 const navItems = [
-  { name: 'home', label: '首页' },
-  { name: 'market-list', label: '集市列表' },
-  { name: 'publish', label: '发布信息' },
-  { name: 'message', label: '消息' },
-  { name: 'profile', label: '个人中心' },
-  { name: 'dashboard', label: '趋势看板' },
+  { name: 'home', label: '首页', icon: '🏠' },
+  { name: 'market-list', label: '集市', icon: '🛒' },
+  { name: 'publish', label: '发布', icon: '📝' },
+  { name: 'message', label: '消息', icon: '💬' },
+  { name: 'profile', label: '我的', icon: '👤' },
+  { name: 'dashboard', label: '看板', icon: '📊' },
 ]
 
 const isActive = computed(() => (name: string) => route.name === name)
 
+const unreadCount = computed(() => messageStore.getUnreadCount())
+
 onMounted(async () => {
   const hasSession = await userStore.restoreSession()
+  if (userStore.currentUser) {
+    await messageStore.fetchConversations()
+  }
   ready.value = true
   if (!hasSession && route.name !== 'create-user') {
     router.push({ name: 'create-user' })
@@ -37,7 +44,10 @@ function navigate(name: string) {
   <ElContainer v-if="ready" class="app-container">
     <ElHeader class="app-header">
       <div class="header-left">
-        <h1 class="app-title" @click="navigate('home')" style="cursor: pointer">轻集市</h1>
+        <div class="brand" @click="navigate('home')">
+          <span class="brand-icon">🛍️</span>
+          <h1 class="app-title">轻集市</h1>
+        </div>
       </div>
 
       <!-- 桌面端导航 -->
@@ -48,21 +58,35 @@ function navigate(name: string) {
           :index="item.name"
           :class="{ 'is-active': isActive(item.name) }"
         >
-          {{ item.label }}
+          <span class="nav-icon">{{ item.icon }}</span>
+          <span v-if="item.name === 'message'">
+            <ElBadge :value="unreadCount" :hidden="unreadCount === 0" class="msg-badge">
+              {{ item.label }}
+            </ElBadge>
+          </span>
+          <span v-else>{{ item.label }}</span>
         </ElMenuItem>
       </ElMenu>
 
       <!-- 移动端导航 -->
       <div class="mobile-nav">
         <ElDropdown trigger="click" @command="navigate">
-          <ElButton class="mobile-menu-btn">菜单</ElButton>
+          <ElButton class="mobile-menu-btn">
+            <span class="menu-dots">☰</span>
+          </ElButton>
           <template #dropdown>
             <ElDropdownMenu>
               <ElDropdownItem
                 v-for="item in navItems"
                 :key="item.name"
                 :command="item.name"
-              >{{ item.label }}</ElDropdownItem>
+              >
+                <span class="dropdown-item">
+                  <span>{{ item.icon }}</span>
+                  <span>{{ item.label }}</span>
+                  <ElBadge v-if="item.name === 'message' && unreadCount > 0" :value="unreadCount" />
+                </span>
+              </ElDropdownItem>
             </ElDropdownMenu>
           </template>
         </ElDropdown>
@@ -70,90 +94,228 @@ function navigate(name: string) {
 
       <div class="header-right">
         <span v-if="userStore.currentUser" class="user-badge">
+          <span class="user-avatar">{{ userStore.currentUser.nickname.charAt(0) }}</span>
           {{ userStore.currentUser.nickname }}
         </span>
-        <ElButton v-else size="small" @click="navigate('create-user')">创建身份</ElButton>
+        <ElButton v-else size="small" round @click="navigate('create-user')">创建身份</ElButton>
       </div>
     </ElHeader>
 
     <ElMain class="app-main">
-      <RouterView />
+      <RouterView v-slot="{ Component }">
+        <transition name="page-fade" mode="out-in">
+          <component :is="Component" />
+        </transition>
+      </RouterView>
     </ElMain>
 
     <ElFooter class="app-footer">
-      <span>校园轻集市 · 前端工程实践项目 · AI 辅助开发</span>
+      <div class="footer-inner">
+        <span>校园轻集市 · 前端工程实践项目</span>
+        <span class="footer-heart">❤</span>
+      </div>
     </ElFooter>
   </ElContainer>
 </template>
-
-<style>
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-  background-color: #f5f7fa;
-  color: #333;
-}
-</style>
 
 <style scoped>
 .app-container {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
+  background: var(--c-bg);
 }
+
+/* ── Header ── */
 .app-header {
   display: flex;
   align-items: center;
-  background: #fff;
-  border-bottom: 1px solid #e4e7ed;
-  padding: 0 20px;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--c-border-light);
+  padding: 0 24px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  height: 60px;
 }
+
 .header-left {
-  margin-right: 20px;
+  margin-right: 24px;
 }
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: opacity var(--transition-fast);
+}
+.brand:hover {
+  opacity: 0.8;
+}
+
+.brand-icon {
+  font-size: 24px;
+}
+
 .app-title {
   font-size: 20px;
   font-weight: 700;
-  color: #409eff;
-  white-space: nowrap;
+  background: linear-gradient(135deg, var(--c-primary), var(--c-primary-light));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
   margin: 0;
+  letter-spacing: 1px;
 }
+
+/* ── Nav menu ── */
 .header-menu {
   flex: 1;
   border-bottom: none !important;
+  background: transparent !important;
 }
+
+.header-menu .el-menu-item {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--c-text-secondary);
+  border-bottom: 2px solid transparent;
+  transition: all var(--transition-base);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  height: 60px;
+  padding: 0 14px;
+}
+
+.header-menu .el-menu-item:hover {
+  color: var(--c-primary) !important;
+  background: var(--c-primary-lighter) !important;
+}
+
+.header-menu .el-menu-item.is-active {
+  color: var(--c-primary) !important;
+  border-bottom-color: var(--c-primary) !important;
+}
+
+.nav-icon {
+  font-size: 16px;
+}
+
+.msg-badge {
+  line-height: 1;
+}
+
+/* ── Header right ── */
 .header-right {
   display: flex;
   align-items: center;
   margin-left: 12px;
 }
+
 .user-badge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
   font-size: 14px;
-  color: #606266;
-  padding: 4px 12px;
-  background: #ecf5ff;
-  border-radius: 16px;
+  font-weight: 500;
+  color: var(--c-text-secondary);
+  padding: 4px 12px 4px 4px;
+  background: var(--c-primary-lighter);
+  border-radius: var(--radius-full);
   white-space: nowrap;
+  transition: var(--transition-base);
 }
+.user-badge:hover {
+  background: var(--c-bg-hover);
+}
+
+.user-avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--c-primary), var(--c-primary-light));
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+/* ── Main ── */
 .app-main {
   padding: 0;
   flex: 1;
 }
+
+/* ── Footer ── */
 .app-footer {
   text-align: center;
-  color: #aaa;
-  font-size: 12px;
   background: #fff;
-  border-top: 1px solid #eee;
-  line-height: 60px;
+  border-top: 1px solid var(--c-border-light);
+  padding: 0 20px;
+  height: 48px;
 }
 
-/* 响应式 */
+.footer-inner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  color: var(--c-text-muted);
+  font-size: 12px;
+  line-height: 48px;
+}
+
+.footer-heart {
+  color: var(--c-danger);
+  animation: pulse 1.5s ease infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.2); }
+}
+
+/* ── Page transition ── */
+.page-fade-enter-active {
+  transition: all 0.3s ease-out;
+}
+.page-fade-leave-active {
+  transition: all 0.2s ease-in;
+}
+.page-fade-enter-from {
+  opacity: 0;
+  transform: translateY(12px);
+}
+.page-fade-leave-to {
+  opacity: 0;
+  transform: translateY(-8px);
+}
+
+/* ── Menubutton ── */
+.mobile-menu-btn {
+  border: none !important;
+  background: var(--c-primary-lighter) !important;
+  font-size: 18px;
+  padding: 8px 12px !important;
+  border-radius: var(--radius-md) !important;
+}
+.menu-dots {
+  color: var(--c-primary);
+}
+
+.dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* ── Responsive ── */
 .desktop-nav {
   display: flex;
 }
@@ -161,6 +323,9 @@ body {
   display: none;
 }
 @media (max-width: 768px) {
+  .app-header {
+    padding: 0 12px;
+  }
   .desktop-nav {
     display: none;
   }
@@ -170,12 +335,20 @@ body {
   .header-left {
     margin-right: 8px;
   }
+  .brand-icon {
+    font-size: 20px;
+  }
   .app-title {
-    font-size: 16px;
+    font-size: 17px;
   }
   .user-badge {
     font-size: 12px;
-    padding: 2px 8px;
+    padding: 2px 8px 2px 2px;
+  }
+  .user-avatar {
+    width: 24px;
+    height: 24px;
+    font-size: 11px;
   }
 }
 </style>
