@@ -7,7 +7,7 @@
       "campus": "北校区",
       "role": "大二学生",
       "creditScore": 85,
-      "avatar": ""
+      "avatar": "https://placehold.co/80x80/FF6B35/FFFFFF?text=ZS"
     },
     {
       "id": 2,
@@ -16,7 +16,7 @@
       "campus": "南校区",
       "role": "大三学生",
       "creditScore": 90,
-      "avatar": ""
+      "avatar": "https://placehold.co/80x80/00B4D8/FFFFFF?text=LS"
     },
     {
       "id": 3,
@@ -25,7 +25,7 @@
       "campus": "东校区",
       "role": "大四学生",
       "creditScore": 78,
-      "avatar": ""
+      "avatar": "https://placehold.co/80x80/00B894/FFFFFF?text=WW"
     },
     {
       "id": 4,
@@ -34,7 +34,7 @@
       "campus": "西校区",
       "role": "大一学生",
       "creditScore": 82,
-      "avatar": ""
+      "avatar": "https://placehold.co/80x80/FDCB6E/FFFFFF?text=ZL"
     },
     {
       "nickname": "纸船",
@@ -42,7 +42,7 @@
       "campus": "南校区",
       "role": "大二学生",
       "creditScore": 80,
-      "avatar": "",
+      "avatar": "https://placehold.co/80x80/74B9FF/FFFFFF?text=ZC",
       "id": 5
     }
   ],
@@ -59,10 +59,12 @@
         "二手",
         "高数"
       ],
-      "images": [],
+      "images": [
+        "/images/math-book.jpg"
+      ],
       "publisherId": 1,
       "status": "进行中",
-      "viewCount": 45,
+      "viewCount": 46,
       "favoriteCount": 5,
       "price": 20,
       "condition": "良好",
@@ -82,7 +84,9 @@
         "代步",
         "二手"
       ],
-      "images": [],
+      "images": [
+        "/images/bicycle.jpg"
+      ],
       "publisherId": 2,
       "status": "进行中",
       "viewCount": 78,
@@ -105,7 +109,9 @@
         "丢失",
         "重要物品"
       ],
-      "images": [],
+      "images": [
+        "/images/campus-card.jpg"
+      ],
       "publisherId": 1,
       "status": "进行中",
       "viewCount": 32,
@@ -128,7 +134,9 @@
         "捡到",
         "失物招领"
       ],
-      "images": [],
+      "images": [
+        "/images/water-bottle.jpg"
+      ],
       "publisherId": 3,
       "status": "进行中",
       "viewCount": 20,
@@ -151,14 +159,16 @@
         "拼单",
         "一点点"
       ],
-      "images": [],
+      "images": [
+        "/images/milk-tea.jpg"
+      ],
       "publisherId": 2,
       "status": "进行中",
       "viewCount": 55,
       "favoriteCount": 4,
       "targetCount": 3,
       "currentCount": 2,
-      "deadline": "2026-06-25 18:00",
+      "deadline": "2026-06-25 18:00:00",
       "createdAt": "2026-06-23 15:00:00",
       "updatedAt": "2026-06-23 15:00:00"
     },
@@ -174,14 +184,16 @@
         "搭子",
         "高数"
       ],
-      "images": [],
+      "images": [
+        "/images/study.jpg"
+      ],
       "publisherId": 4,
       "status": "进行中",
       "viewCount": 38,
       "favoriteCount": 6,
       "targetCount": 3,
       "currentCount": 1,
-      "deadline": "2026-07-10 00:00",
+      "deadline": "2026-07-10 00:00:00",
       "createdAt": "2026-06-24 09:00:00",
       "updatedAt": "2026-06-24 09:00:00"
     },
@@ -197,14 +209,16 @@
         "快递",
         "跑腿"
       ],
-      "images": [],
+      "images": [
+        "/images/package.jpg"
+      ],
       "publisherId": 4,
       "status": "进行中",
-      "viewCount": 42,
+      "viewCount": 43,
       "favoriteCount": 3,
       "reward": 5,
       "taskPlace": "北区菜鸟驿站",
-      "expectedTime": "2026-06-26 20:00 前",
+      "expectedTime": "2026-06-26 20:00:00 前",
       "createdAt": "2026-06-25 08:00:00",
       "updatedAt": "2026-06-25 08:00:00"
     },
@@ -220,7 +234,9 @@
         "早餐",
         "跑腿"
       ],
-      "images": [],
+      "images": [
+        "/images/breakfast.jpg"
+      ],
       "publisherId": 3,
       "status": "进行中",
       "viewCount": 32,
@@ -243,7 +259,9 @@
         "生活用品",
         "二手"
       ],
-      "images": [],
+      "images": [
+        "/images/desk-lamp.jpg"
+      ],
       "publisherId": 4,
       "status": "已完成",
       "viewCount": 25,
@@ -266,7 +284,9 @@
         "捡到",
         "失物招领"
       ],
-      "images": [],
+      "images": [
+        "/images/keys.jpg"
+      ],
       "publisherId": 1,
       "status": "已认领",
       "viewCount": 28,
@@ -289,14 +309,16 @@
         "西瓜",
         "拼单"
       ],
-      "images": [],
+      "images": [
+        "/images/watermelon.jpg"
+      ],
       "publisherId": 1,
       "status": "已完成",
       "viewCount": 35,
       "favoriteCount": 3,
       "targetCount": 4,
       "currentCount": 3,
-      "deadline": "2026-06-21 12:00",
+      "deadline": "2026-06-21 12:00:00",
       "createdAt": "2026-06-20 19:00:00",
       "updatedAt": "2026-06-21 12:00:00"
     },
@@ -312,35 +334,18 @@
         "材料",
         "跑腿"
       ],
-      "images": [],
+      "images": [
+        "/images/documents.jpg"
+      ],
       "publisherId": 2,
       "status": "已完成",
       "viewCount": 22,
       "favoriteCount": 1,
       "reward": 5,
       "taskPlace": "行政楼308",
-      "expectedTime": "2026-06-24 17:00 前",
+      "expectedTime": "2026-06-24 17:00:00 前",
       "createdAt": "2026-06-23 08:30:00",
       "updatedAt": "2026-06-24 15:00:00"
-    },
-    {
-      "type": "secondhand",
-      "title": "卖小孩",
-      "description": "二手",
-      "campus": "北校区",
-      "location": "",
-      "tags": [],
-      "images": [],
-      "status": "进行中",
-      "viewCount": 1,
-      "favoriteCount": 0,
-      "createdAt": "2026-06-27 15:58:53",
-      "updatedAt": "2026-06-27 15:58:53",
-      "price": 3,
-      "condition": "全新",
-      "allowBargain": true,
-      "publisherId": 5,
-      "id": 13
     }
   ],
   "favorites": [
@@ -386,10 +391,19 @@
       "itemId": 8,
       "buyerId": 5,
       "publisherId": 3,
-      "lastMessage": "你好",
-      "unreadCount": 1,
-      "updatedAt": "2026-06-27 11:48:35",
+      "lastMessage": "dd",
+      "unreadCount": 0,
+      "updatedAt": "2026-06-28 14:30:40",
       "id": 3
+    },
+    {
+      "itemId": 7,
+      "buyerId": 5,
+      "publisherId": 4,
+      "lastMessage": "hint",
+      "unreadCount": 0,
+      "updatedAt": "2026-06-28 14:19:59",
+      "id": 4
     }
   ],
   "messages": [
@@ -482,6 +496,96 @@
       "createdAt": "2026-06-27 11:48:35",
       "read": false,
       "id": 9
+    },
+    {
+      "conversationId": 3,
+      "senderId": 5,
+      "receiverId": 3,
+      "content": "hh",
+      "messageType": "text",
+      "createdAt": "2026-06-28 10:49:15",
+      "read": false,
+      "id": 13
+    },
+    {
+      "conversationId": 3,
+      "senderId": 3,
+      "receiverId": 5,
+      "content": "你好，感谢关注！请问有什么想了解的？",
+      "messageType": "text",
+      "createdAt": "2026-06-28 10:49:15",
+      "read": false,
+      "id": 14
+    },
+    {
+      "conversationId": 4,
+      "senderId": 5,
+      "receiverId": 4,
+      "content": "你好",
+      "messageType": "text",
+      "createdAt": "2026-06-28 14:19:48",
+      "read": false,
+      "id": 15
+    },
+    {
+      "conversationId": 4,
+      "senderId": 5,
+      "receiverId": 4,
+      "content": "你好",
+      "messageType": "text",
+      "createdAt": "2026-06-28 14:19:54",
+      "read": false,
+      "id": 16
+    },
+    {
+      "conversationId": 4,
+      "senderId": 5,
+      "receiverId": 4,
+      "content": "hint",
+      "messageType": "text",
+      "createdAt": "2026-06-28 14:19:58",
+      "read": false,
+      "id": 17
+    },
+    {
+      "conversationId": 3,
+      "senderId": 5,
+      "receiverId": 3,
+      "content": "nn",
+      "messageType": "text",
+      "createdAt": "2026-06-28 14:24:08",
+      "read": false,
+      "id": 18
+    },
+    {
+      "conversationId": 3,
+      "senderId": 3,
+      "receiverId": 5,
+      "content": "你好，感谢关注！请问有什么想了解的？",
+      "messageType": "text",
+      "createdAt": "2026-06-28 14:24:08",
+      "read": false,
+      "id": 19
+    },
+    {
+      "conversationId": 3,
+      "senderId": 5,
+      "receiverId": 3,
+      "content": "dd",
+      "messageType": "text",
+      "createdAt": "2026-06-28 14:30:40",
+      "read": false,
+      "id": 20
+    },
+    {
+      "conversationId": 3,
+      "senderId": 3,
+      "receiverId": 5,
+      "content": "你好，感谢关注！请问有什么想了解的？",
+      "messageType": "text",
+      "createdAt": "2026-06-28 14:30:40",
+      "read": false,
+      "id": 21
     }
   ],
   "notices": [
