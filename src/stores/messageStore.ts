@@ -28,8 +28,6 @@ export const useMessageStore = defineStore('message', () => {
   async function fetchMessages(conversationId: number) {
     const res = await getMessages(conversationId)
     currentMessages.value = res.data
-    const conv = conversations.value.find(c => c.id === conversationId)
-    if (conv) currentConversation.value = conv
   }
 
   async function ensureConversation(itemId: number, publisherId: number): Promise<Conversation> {
@@ -55,84 +53,66 @@ export const useMessageStore = defineStore('message', () => {
     return newConv.data
   }
 
-  async function sendTextMessage(content: string, receiverId: number) {
-    const userStore = useUserStore()
-    if (!userStore.currentUser || !currentConversation.value) return
-
-    const msg = await sendMessage({
-      conversationId: currentConversation.value.id,
-      senderId: userStore.currentUser.id,
-      receiverId,
-      content,
-      messageType: 'text',
-      createdAt: now(),
-      read: false,
-    })
-    currentMessages.value.push(msg.data)
-
-    // 更新会话
-    await updateConversation(currentConversation.value.id, {
-      lastMessage: content,
-      unreadCount: currentConversation.value.unreadCount + 1,
-      updatedAt: now(),
-    })
-    currentConversation.value.lastMessage = content
-    currentConversation.value.unreadCount += 1
-    currentConversation.value.updatedAt = now()
-
-    // 生成模拟回复
-    const replyContent = getMockReply()
-    const reply = await sendMessage({
-      conversationId: currentConversation.value.id,
-      senderId: receiverId,
-      receiverId: userStore.currentUser.id,
-      content: replyContent,
-      messageType: 'text',
-      createdAt: now(),
-      read: false,
-    })
-    currentMessages.value.push(reply.data)
-  }
-
-  async function sendBargainMessage(content: string, receiverId: number, publisherId: number, itemId: number) {
+  async function sendTextMessage(
+    content: string,
+    receiverId: number,
+    conversationId?: number,
+    messageType: string = 'text',
+    senderIdOverride?: number,
+  ) {
     const userStore = useUserStore()
     if (!userStore.currentUser) return
 
-    // 确保会话存在
-    const conv = await ensureConversation(itemId, publisherId)
-    currentConversation.value = conv
+    const convId = conversationId || currentConversation.value?.id
+    if (!convId) return
 
-    // 发送砍价消息
+    const senderId = senderIdOverride || userStore.currentUser.id
+
+    // 发送消息
     const msg = await sendMessage({
-      conversationId: conv.id,
-      senderId: userStore.currentUser.id,
+      conversationId: convId,
+      senderId,
       receiverId,
       content,
-      messageType: 'bargain',
+      messageType,
       createdAt: now(),
       read: false,
     })
     currentMessages.value.push(msg.data)
 
-    // 生成模拟回复
-    const replyContent = getMockReply()
-    const reply = await sendMessage({
-      conversationId: conv.id,
-      senderId: receiverId,
-      receiverId: userStore.currentUser.id,
-      content: replyContent,
-      messageType: 'text',
-      createdAt: now(),
-      read: false,
-    })
-    currentMessages.value.push(reply.data)
-
-    // 更新会话
-    await updateConversation(conv.id, {
+    // 更新会话最后消息
+    await updateConversation(convId, {
       lastMessage: content,
-      unreadCount: 1,
+      unreadCount: (currentConversation.value?.unreadCount || 0) + 1,
       updatedAt: now(),
     })
+    if (currentConversation.value?.id === convId) {
+      currentConversation.value.lastMessage = content
+      currentConversation.value.unreadCount += 1
+      currentConversation.value.updatedAt = now()
+    }
+    // 同时更新 conversations 列表中的对应项
+    const convInList = conversations.value.find(c => c.id === convId)
+    if (convInList) {
+      convInList.lastMessage = content
+      convInList.unreadCount += 1
+      convInList.updatedAt = now()
+    }
+
+    // 普通文本消息才生成模拟回复
+    if (messageType === 'text' && !senderIdOverride) {
+      const replyContent = getMockReply()
+      const reply = await sendMessage({
+        conversationId: convId,
+        senderId: receiverId,
+        receiverId: userStore.currentUser.id,
+        content: replyContent,
+        messageType: 'text',
+        createdAt: now(),
+        read: false,
+      })
+      currentMessages.value.push(reply.data)
+    }
   }
 
   async function markAsRead(conversationId: number) {
@@ -155,7 +135,6 @@ export const useMessageStore = defineStore('message', () => {
     markAsRead,
     ensureConversation,
     sendTextMessage,
-    sendBargainMessage,
     getUnreadCount,
   }
 })
