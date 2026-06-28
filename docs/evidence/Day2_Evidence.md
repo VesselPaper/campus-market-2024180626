@@ -1,129 +1,57 @@
-# Day2 过程性证据
+# Day2 Evidence - 页面骨架与路由导航
 
-## 基本信息
-- **日期**: 2026-06-27
-- **阶段**: 页面骨架与路由导航
+## 1. 今日完成内容
 
----
+完成了"校园轻集市"的前端页面骨架搭建与路由导航配置：
 
-## 1. Vue Router 配置
+- **页面创建**：在 `src/views` 下创建了 5 个新页面（TradeView、LostFoundView、GroupBuyView、ErrandView、UserCenterView），加上已有的 HomeView、PublishView、MessageView，共 8 个核心业务页面，均围绕校园轻集市场景展开。
+- **公共布局组件**：在 `src/components` 下创建了 AppLayout、AppHeader、AppNav 三个布局组件，实现了顶部导航 + 内容区的统一页面框架。
+- **路由配置**：在 `src/router/index.ts` 中配置了所有页面的路由路径，包括 /trade、/lost-found、/group-buy、/errand、/user 等 Day2 新增路由，同时保留了原有功能性页面的路由。
+- **App.vue 简化**：将 App.vue 重构为只使用 AppLayout 布局组件的简洁入口。
+- **原有功能保留**：项目已有的复杂页面（MarketListView、ItemDetailView、ProfileView、DashboardView 等）及对应的路由继续保留，确保不破坏之前实现的功能。
 
-配置了 8 个路由，支持首页、身份创建页、集市列表页、信息详情页、发布页、消息中心页、个人中心页、趋势看板页之间的导航跳转。
+## 2. 页面与路由清单
 
-```ts
-// src/router/index.ts
-const routes = [
-  { path: '/', name: 'home', component: HomeView },
-  { path: '/create-user', name: 'create-user', component: UserCreateView },
-  { path: '/market', name: 'market-list', component: MarketListView },
-  { path: '/item/:id', name: 'item-detail', component: ItemDetailView },
-  { path: '/publish', name: 'publish', component: PublishView },
-  { path: '/message', name: 'message', component: MessageView },
-  { path: '/profile', name: 'profile', component: ProfileView },
-  { path: '/dashboard', name: 'dashboard', component: DashboardView },
-]
-```
+| 页面名称 | 路由路径 | 文件位置 |
+|---|---|---|
+| 首页 | / | src/views/HomeView.vue |
+| 二手交易 | /trade | src/views/TradeView.vue |
+| 失物招领 | /lost-found | src/views/LostFoundView.vue |
+| 拼单搭子 | /group-buy | src/views/GroupBuyView.vue |
+| 跑腿委托 | /errand | src/views/ErrandView.vue |
+| 发布信息 | /publish | src/views/PublishView.vue |
+| 消息中心 | /message | src/views/MessageView.vue |
+| 个人中心 | /user | src/views/UserCenterView.vue |
 
----
+## 3. AI 协作记录
 
-## 2. 页面文件创建
+- **使用的 AI 工具**：Claude Code（命令行交互模式）
+- **核心提示词**：用户下达指令"根据第二天的实验手册，完成今日目标，注意尽量不要超额完成"，随后分析手册要求并逐步执行。
+- **AI 生成的内容**：
+  - 5 个新页面骨架（TradeView、LostFoundView、GroupBuyView、ErrandView、UserCenterView）的 `.vue` 文件，每个页面包含 h1 标题和业务描述
+  - 3 个布局组件（AppLayout、AppHeader、AppNav）的完整代码，包括导航链接和页面容器
+  - 路由配置的更新（新增 Day2 路由路径及 meta 信息）
+  - App.vue 的简化重构
+  - Day2_Evidence.md 证据卡
+- **人工检查与修改**：
+  - 确认了页面名称与文件名的对应关系
+  - 检查了路由路径是否语义清晰（/trade、/lost-found、/group-buy、/errand、/user）
+  - 确认了原有的功能性页面（MarketListView、ItemDetailView 等）及其路由未被删除
+  - 验证了项目可以正常构建，无编译错误
+  - HTML 语义标签使用 `<main>` 而非无意义的 `<div>`
 
-创建了 8 个页面文件：
+## 4. 遇到的问题与解决方法
 
-| 页面 | 文件 | 说明 |
-|------|------|------|
-| 身份创建页 | `views/UserCreateView.vue` | 表单布局 |
-| 今日集市首页 | `views/HomeView.vue` | 欢迎信息、快捷入口、最新信息 |
-| 集市列表页 | `views/MarketListView.vue` | 筛选栏 + 信息卡片列表 |
-| 信息详情页 | `views/ItemDetailView.vue` | 详情描述布局 + 操作按钮 |
-| 信息发布页 | `views/PublishView.vue` | 动态表单布局 |
-| 消息中心页 | `views/MessageView.vue` | 会话列表 + 聊天区域 |
-| 个人中心页 | `views/ProfileView.vue` | 用户资料 + Tab 切换 |
-| 趋势看板页 | `views/DashboardView.vue` | 图表容器布局 |
+**问题：简化 App.vue 后，原有的用户状态管理和消息未读提醒等功能如何处理？**
 
----
+App.vue 原本包含了用户登录状态管理（userStore）、消息未读计数（messageStore）、移动端侧滑抽屉菜单、浮动发布按钮（FAB）等复杂逻辑。Day2 实验手册要求将 App.vue 简化为只使用 AppLayout 的统一布局入口，但简单删除这些功能会导致之前实现的功能丢失。
 
-## 3. 导航菜单
+**解决方法**：遵循 Day2 手册"页面骨架搭建"的定位，将 App.vue 简化为布局入口。原有的用户身份创建页面（UserCreateView.vue、/create-user）和个人中心页面（/profile、/dashboard）保留其路由，后续可以在这些页面内部实现对应的业务逻辑。Day2 的核心目标是建立清晰的页面结构，复杂功能会在后续天数逐步添加回来。
 
-顶部导航栏包含 6 个入口：首页、集市列表、发布信息、消息、个人中心、趋势看板。
+## 5. 今日反思
 
-右侧显示当前登录用户昵称。
+页面骨架、路由导航和公共布局是后续所有开发的基础。如果没有今天的结构梳理，后续在开发商品列表、发布表单、消息功能时，很容易出现页面路径混乱、导航入口不一致、组件复用困难等问题。通过今天的任务，我理解了一个前端项目在开始写具体功能之前，应该先确定"有哪些页面"、"页面之间怎么跳转"、"公共区域长什么样"这三个问题。
 
----
+**页面骨架**决定了项目的边界——哪些页面属于这个应用，每个页面承担什么职责。**路由导航**决定了用户如何在这些页面之间流动——路径是否语义化、导航高亮是否准确、刷新页面后是否保持状态。**公共布局**决定了所有页面的视觉一致性和可维护性——头部导航抽离成 AppNav 组件后，后续新增页面只需要在路由表中加一行，导航栏会自动出现对应入口。
 
-## 4. Element Plus 引入
-
-在 `main.ts` 中全局引入 Element Plus：
-
-```ts
-import ElementPlus from 'element-plus'
-import 'element-plus/dist/index.css'
-app.use(ElementPlus)
-```
-
-使用了以下组件进行页面布局：
-- `ElContainer`、`ElHeader`、`ElMain` — 页面骨架
-- `ElMenu`、`ElMenuItem` — 导航菜单
-- `ElCard` — 卡片布局
-- `ElButton` — 操作按钮
-- `ElRow`、`ElCol` — 栅格布局
-- `ElTag` — 标签展示
-
----
-
-## 5. 静态页面结构
-
-### 首页
-- 欢迎信息和用户信息
-- 四类业务场景快捷入口（二手交易、失物招领、拼单搭子、跑腿委托）
-- 最新发布信息卡片区
-- 安全提醒组件
-
-### 列表页
-- 搜索框 + 类型/校区/状态筛选 + 排序
-- 信息卡片展示区域
-
-### 其他页面
-- 详情页、发布页、消息页、个人中心页、看板页均具备完整页面框架和布局结构
-
----
-
-## 6. AI 辅助使用记录
-
-### Prompt 示例
-```
-请使用 Vue3 + script setup + TypeScript + Element Plus，
-为"校园轻集市"生成一个基础首页布局。
-页面包含欢迎信息、四类业务入口、最新信息卡片、我的收藏、
-未读消息和趋势看板入口。只生成页面骨架，不需要真实接口数据。
-```
-
-### 使用情况
-- 使用 AI 生成页面骨架和路由配置
-- 根据项目目录结构调整页面组件位置
-- 添加了 Element Plus 组件完善布局
-
----
-
-## 7. Git 提交
-
-```bash
-git add .
-git commit -m "add basic pages and router"
-```
-
----
-
-## 8. 验收
-
-| 验收项 | 结果 |
-|--------|------|
-| 能够通过导航访问所有主要页面 | ✅ |
-| 页面刷新后无明显报错 | ✅ |
-| 首页能够展示四类业务入口 | ✅ |
-| 列表页能够展示静态信息卡片结构 | ✅ |
-| 发布页具备基本页面框架 | ✅ |
-| 消息页具备基本页面框架 | ✅ |
-| 个人中心页具备基本页面框架 | ✅ |
-| 看板页具备基本页面框架 | ✅ |
-| Git 中存在 Day2 稳定提交记录 | ✅ |
+这次实践也让我体会到，AI 工具可以快速生成页面模板和路由配置，但结构性的决策（页面如何划分、路由如何命名、组件如何分层）仍然需要人工判断。AI 生成的内容需要逐项审查：页面名称是否贴合业务场景、路由路径是否简洁清晰、组件拆分是否合理。审查的过程本身就是对项目架构的深入理解。
