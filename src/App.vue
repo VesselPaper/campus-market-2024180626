@@ -38,10 +38,21 @@ onMounted(async () => {
 function navigate(name: string) {
   router.push({ name })
 }
+
+function handleLogout() {
+  userStore.clearUser()
+  router.push({ name: 'create-user' })
+}
 </script>
 
 <template>
-  <ElContainer v-if="ready" class="app-container">
+  <div v-if="!ready" class="app-loading">
+    <div class="loading-spinner">
+      <span class="loading-icon">🛍️</span>
+      <p class="loading-text">轻集市加载中...</p>
+    </div>
+  </div>
+  <ElContainer v-else class="app-container">
     <ElHeader class="app-header">
       <div class="header-left">
         <div class="brand" @click="navigate('home')">
@@ -64,6 +75,7 @@ function navigate(name: string) {
             v-if="item.name === 'message' && unreadCount > 0"
             :value="unreadCount"
             class="nav-badge"
+            :max="99"
           />
         </ElMenuItem>
       </ElMenu>
@@ -97,6 +109,15 @@ function navigate(name: string) {
           <span class="user-avatar">{{ userStore.currentUser.nickname.charAt(0) }}</span>
           {{ userStore.currentUser.nickname }}
         </span>
+        <ElButton
+          v-if="userStore.currentUser"
+          size="small"
+          text
+          class="logout-btn"
+          @click="handleLogout"
+        >
+          退出
+        </ElButton>
         <ElButton v-else size="small" round @click="navigate('create-user')">创建身份</ElButton>
       </div>
     </ElHeader>
@@ -119,6 +140,27 @@ function navigate(name: string) {
 </template>
 
 <style scoped>
+.app-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  background: var(--c-bg);
+}
+.loading-spinner {
+  text-align: center;
+}
+.loading-icon {
+  font-size: 48px;
+  display: block;
+  animation: float 2s ease-in-out infinite;
+}
+.loading-text {
+  margin-top: 12px;
+  color: var(--c-text-muted);
+  font-size: 14px;
+}
+
 .app-container {
   min-height: 100vh;
   display: flex;
@@ -242,6 +284,16 @@ function navigate(name: string) {
   background: var(--c-bg-hover);
 }
 
+.logout-btn {
+  margin-left: 4px;
+  color: var(--c-text-muted) !important;
+  font-size: 12px;
+  padding: 4px 8px !important;
+}
+.logout-btn:hover {
+  color: var(--c-danger) !important;
+}
+
 .user-avatar {
   width: 28px;
   height: 28px;
@@ -292,18 +344,16 @@ function navigate(name: string) {
 
 /* ── Page transition ── */
 .page-fade-enter-active {
-  transition: all 0.3s ease-out;
+  transition: opacity 0.1s ease-out;
 }
 .page-fade-leave-active {
-  transition: all 0.2s ease-in;
+  transition: opacity 0.08s ease-in;
 }
 .page-fade-enter-from {
   opacity: 0;
-  transform: translateY(12px);
 }
 .page-fade-leave-to {
   opacity: 0;
-  transform: translateY(-8px);
 }
 
 /* ── Menubutton ── */
