@@ -16,6 +16,8 @@ const sending = ref(false)
 const chatRef = ref<InstanceType<typeof ElScrollbar> | null>(null)
 
 async function loadMessages() {
+  const conv = messageStore.conversations.find(c => c.id === props.conversationId)
+  if (conv) messageStore.currentConversation = conv
   await messageStore.fetchMessages(props.conversationId)
   scrollToBottom()
 }
