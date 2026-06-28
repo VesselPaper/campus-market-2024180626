@@ -133,6 +133,13 @@ export const useMessageStore = defineStore('message', () => {
     })
   }
 
+  async function markAsRead(conversationId: number) {
+    const conv = conversations.value.find(c => c.id === conversationId)
+    if (!conv || conv.unreadCount === 0) return
+    conv.unreadCount = 0
+    await updateConversation(conversationId, { unreadCount: 0 })
+  }
+
   function getUnreadCount(): number {
     return conversations.value.reduce((sum, c) => sum + c.unreadCount, 0)
   }
@@ -143,6 +150,7 @@ export const useMessageStore = defineStore('message', () => {
     currentConversation,
     fetchConversations,
     fetchMessages,
+    markAsRead,
     ensureConversation,
     sendTextMessage,
     sendBargainMessage,

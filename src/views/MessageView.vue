@@ -52,6 +52,7 @@ function getUserName(userId: number): string {
 
 async function selectConversation(convId: number) {
   activeConvId.value = convId
+  await messageStore.markAsRead(convId)
   await messageStore.fetchMessages(convId)
 }
 
