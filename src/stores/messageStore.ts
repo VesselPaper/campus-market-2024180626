@@ -28,6 +28,8 @@ export const useMessageStore = defineStore('message', () => {
   async function fetchMessages(conversationId: number) {
     const res = await getMessages(conversationId)
     currentMessages.value = res.data
+    const conv = conversations.value.find(c => c.id === conversationId)
+    if (conv) currentConversation.value = conv
   }
 
   async function ensureConversation(itemId: number, publisherId: number): Promise<Conversation> {
