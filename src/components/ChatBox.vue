@@ -16,17 +16,19 @@ const sending = ref(false)
 const chatRef = ref<InstanceType<typeof ElScrollbar> | null>(null)
 
 async function loadMessages() {
-  const conv = messageStore.conversations.find(c => c.id === props.conversationId)
-  if (conv) messageStore.currentConversation = conv
   await messageStore.fetchMessages(props.conversationId)
+  // 同步设置当前会话，确保后续消息发送能获取到 convId
+  const conv = messageStore.conversations.find(c => c.id === props.conversationId)
+  if (conv) {
+    messageStore.currentConversation = conv
+  }
   scrollToBottom()
 }
 
 function scrollToBottom() {
   nextTick(() => {
-    if (chatRef.value) {
-      const el = chatRef.value.$el || chatRef.value
-      el.scrollTop = el.scrollHeight
+    if (chatRef.value?.wrapRef) {
+      chatRef.value.wrapRef.scrollTop = chatRef.value.wrapRef.scrollHeight
     }
   })
 }
@@ -39,7 +41,12 @@ async function send() {
   }
   sending.value = true
   try {
-    await messageStore.sendTextMessage(newMsg.value.trim(), props.receiverId)
+    // 显式传递 conversationId，不依赖 currentConversation
+    await messageStore.sendTextMessage(
+      newMsg.value.trim(),
+      props.receiverId,
+      props.conversationId,
+    )
     newMsg.value = ''
     scrollToBottom()
   } finally {

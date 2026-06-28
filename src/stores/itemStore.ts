@@ -3,6 +3,7 @@ import { ref } from 'vue'
 import type { Item, FilterParams } from '@/types'
 import { getItems, getItemById, createItem, updateItem, deleteItem } from '@/api/itemApi'
 import { ElMessage } from 'element-plus'
+import { logger } from '@/utils/logger'
 
 export const useItemStore = defineStore('item', () => {
   const items = ref<Item[]>([])
@@ -16,9 +17,9 @@ export const useItemStore = defineStore('item', () => {
     try {
       const res = await getItems(params)
       items.value = res.data
-    } catch (e: any) {
+    } catch (e: unknown) {
       error.value = '获取信息列表失败，请确认 JSON Server 是否已启动'
-      console.error('fetchItems error:', e)
+      logger.error('fetchItems error:', e)
     } finally {
       loading.value = false
     }
@@ -30,9 +31,9 @@ export const useItemStore = defineStore('item', () => {
     try {
       const res = await getItemById(id)
       currentItem.value = res.data
-    } catch (e: any) {
+    } catch (e: unknown) {
       error.value = '获取信息详情失败'
-      console.error('fetchItemById error:', e)
+      logger.error('fetchItemById error:', e)
     } finally {
       loading.value = false
     }
@@ -44,8 +45,9 @@ export const useItemStore = defineStore('item', () => {
       items.value.unshift(res.data)
       ElMessage.success('发布成功')
       return res.data
-    } catch (e: any) {
+    } catch (e: unknown) {
       ElMessage.error('发布失败，请确认 JSON Server 是否已启动')
+      logger.error('publishItem error:', e)
       throw e
     }
   }
@@ -61,8 +63,9 @@ export const useItemStore = defineStore('item', () => {
         items.value[idx] = { ...items.value[idx], ...res.data }
       }
       return res.data
-    } catch (e: any) {
+    } catch (e: unknown) {
       ElMessage.error('更新失败')
+      logger.error('editItem error:', e)
       throw e
     }
   }
@@ -74,8 +77,9 @@ export const useItemStore = defineStore('item', () => {
       if (currentItem.value?.id === id) {
         currentItem.value = null
       }
-    } catch (e: any) {
+    } catch (e: unknown) {
       ElMessage.error('删除失败')
+      logger.error('removeItem error:', e)
       throw e
     }
   }

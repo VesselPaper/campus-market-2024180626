@@ -39,11 +39,42 @@ watch(() => props.itemId, checkStatus)
 
 <template>
   <ElButton
-    :type="isFav ? 'danger' : 'default'"
+    :class="['fav-btn', { 'is-fav': isFav }]"
     :loading="loading"
     @click="toggle"
-    :icon="isFav ? undefined : undefined"
   >
-    {{ isFav ? '♥ 已收藏' : '♡ 收藏' }}
+    <span :class="['heart', { 'heart-active': isFav }]">
+      {{ isFav ? '♥' : '♡' }}
+    </span>
+    <span>{{ isFav ? '已收藏' : '收藏' }}</span>
   </ElButton>
 </template>
+
+<style scoped>
+.fav-btn {
+  transition: all var(--transition-base) !important;
+}
+.fav-btn.is-fav {
+  border-color: var(--c-danger) !important;
+  color: var(--c-danger) !important;
+  background: #FFF0F0 !important;
+}
+.fav-btn:not(.is-fav):hover {
+  border-color: #ffcccc !important;
+  color: var(--c-danger) !important;
+}
+.heart {
+  display: inline-block;
+  transition: transform var(--transition-spring);
+  font-size: 16px;
+}
+.heart-active {
+  animation: heartBeat 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+@keyframes heartBeat {
+  0% { transform: scale(1); }
+  30% { transform: scale(1.3); }
+  60% { transform: scale(0.9); }
+  100% { transform: scale(1); }
+}
+</style>

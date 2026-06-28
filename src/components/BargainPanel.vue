@@ -4,8 +4,6 @@ import { ElInput, ElButton, ElMessage, ElCard } from 'element-plus'
 import { useMessageStore } from '@/stores/messageStore'
 import { useUserStore } from '@/stores/userStore'
 import { getBargainReply } from '@/utils/mockReply'
-import { sendMessage, updateConversation } from '@/api/messageApi'
-import { now } from '@/utils/date'
 
 const props = defineProps<{
   itemId: number
@@ -36,34 +34,11 @@ async function submitBargain() {
 
     // 发送砍价消息
     const bargainContent = `我对这件商品出价 ¥${offerPrice.value}，可以吗？`
-    await sendMessage({
-      conversationId: conv.id,
-      senderId: userStore.currentUser.id,
-      receiverId: props.publisherId,
-      content: bargainContent,
-      messageType: 'bargain',
-      createdAt: now(),
-      read: false,
-    })
+    await messageStore.sendTextMessage(bargainContent, props.publisherId, conv.id, 'bargain')
 
     // 生成砍价回复
     const replyContent = getBargainReply(offerPrice.value, props.price)
-    await sendMessage({
-      conversationId: conv.id,
-      senderId: props.publisherId,
-      receiverId: userStore.currentUser.id,
-      content: replyContent,
-      messageType: 'text',
-      createdAt: now(),
-      read: false,
-    })
-
-    // 更新会话
-    await updateConversation(conv.id, {
-      lastMessage: bargainContent,
-      unreadCount: 1,
-      updatedAt: now(),
-    })
+    await messageStore.sendTextMessage(replyContent, userStore.currentUser.id, conv.id, 'text', props.publisherId)
 
     bargainLog.value.push(`你出价 ¥${offerPrice.value}`)
     bargainLog.value.push(`卖家回复: ${replyContent}`)
@@ -84,10 +59,10 @@ async function submitBargain() {
         v-model="offerPrice"
         type="number"
         placeholder="输入你的出价"
-        style="width: 180px"
+        class="bargain-input-el"
         :min="1"
       />
-      <ElButton type="primary" :loading="submitting" @click="submitBargain" style="margin-left: 8px">
+      <ElButton type="primary" :loading="submitting" @click="submitBargain" class="bargain-submit">
         出价砍价
       </ElButton>
     </div>
@@ -108,6 +83,13 @@ async function submitBargain() {
 .bargain-input {
   display: flex;
   align-items: center;
+  gap: 8px;
+}
+.bargain-input-el {
+  width: 180px;
+}
+.bargain-submit {
+  flex-shrink: 0;
 }
 .bargain-log {
   margin-top: 12px;

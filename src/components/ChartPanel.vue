@@ -13,10 +13,13 @@ const chartInstance = shallowRef<echarts.ECharts | null>(null)
 const hasData = ref(false)
 
 function hasValidData(opt: echarts.EChartsOption): boolean {
-  const series = (opt as any)?.series
+  const series = opt?.series
   if (!series) return false
   const seriesList = Array.isArray(series) ? series : [series]
-  return seriesList.some((s: any) => s?.data && s.data.length > 0)
+  return seriesList.some((s) => {
+    const seriesItem = s as echarts.SeriesOption
+    return seriesItem?.data && (seriesItem.data as unknown[]).length > 0
+  })
 }
 
 function initChart() {
@@ -34,9 +37,16 @@ function resizeChart() {
   chartInstance.value?.resize()
 }
 
-onMounted(async () => {
-  await nextTick()
-  initChart()
+function tryInitChart() {
+  if (!hasValidData(props.option)) return
+  hasData.value = true
+  nextTick(() => {
+    initChart()
+  })
+}
+
+onMounted(() => {
+  tryInitChart()
   window.addEventListener('resize', resizeChart)
 })
 
@@ -45,15 +55,14 @@ onUnmounted(() => {
   chartInstance.value?.dispose()
 })
 
-watch(() => props.option, async (opt) => {
-  await nextTick()
+watch(() => props.option, (opt) => {
   if (chartInstance.value) {
     chartInstance.value.setOption(opt, true)
     chartInstance.value.resize()
+    hasData.value = true
   } else {
-    initChart()
+    tryInitChart()
   }
-  hasData.value = hasValidData(opt)
 }, { deep: true })
 </script>
 

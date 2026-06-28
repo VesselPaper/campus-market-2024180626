@@ -3,6 +3,7 @@ import { ref, computed } from 'vue'
 import type { User } from '@/types'
 import { getUsers, createUser, updateUser } from '@/api/userApi'
 import { ElMessage } from 'element-plus'
+import { logger } from '@/utils/logger'
 
 const USER_ID_KEY = 'campus_market_user_id'
 
@@ -26,8 +27,8 @@ export const useUserStore = defineStore('user', () => {
     try {
       const res = await getUsers()
       users.value = res.data
-    } catch (e) {
-      console.error('fetchUsers error:', e)
+    } catch (e: unknown) {
+      logger.error('fetchUsers error:', e)
       throw e
     }
   }
@@ -56,7 +57,7 @@ export const useUserStore = defineStore('user', () => {
       currentUser.value = res.data
       saveLocalUserId(res.data.id)
       return res.data
-    } catch (e) {
+    } catch (e: unknown) {
       ElMessage.error('创建身份失败，请确认 JSON Server 是否已启动')
       throw e
     } finally {
@@ -69,7 +70,7 @@ export const useUserStore = defineStore('user', () => {
     try {
       const res = await updateUser(currentUser.value.id, data)
       currentUser.value = res.data
-    } catch (e) {
+    } catch (e: unknown) {
       ElMessage.error('更新失败')
       throw e
     }

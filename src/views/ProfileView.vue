@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { ElCard, ElTabs, ElTabPane, ElTable, ElTableColumn, ElButton, ElTag, ElSelect, ElOption, ElMessage, ElDescriptions, ElDescriptionsItem } from 'element-plus'
+import { ElCard, ElTabs, ElTabPane, ElTable, ElTableColumn, ElButton, ElTag, ElSelect, ElOption, ElMessage, ElDescriptions, ElDescriptionsItem, ElMessageBox, ElEmpty } from 'element-plus'
 import { useUserStore } from '@/stores/userStore'
 import { useItemStore } from '@/stores/itemStore'
 import { useFavoriteStore } from '@/stores/favoriteStore'
@@ -30,6 +30,36 @@ async function updateStatus(itemId: number) {
   if (!newStatus) return
   await itemStore.editItem(itemId, { status: newStatus })
   ElMessage.success('状态更新成功')
+  await refreshMyItems()
+}
+
+async function handleDelete(itemId: number) {
+  try {
+    await ElMessageBox.confirm('确定要删除这条信息吗？此操作不可撤销。', '确认删除', {
+      confirmButtonText: '删除',
+      cancelButtonText: '取消',
+      type: 'warning',
+    })
+    await itemStore.removeItem(itemId)
+    ElMessage.success('删除成功')
+    await refreshMyItems()
+  } catch {
+    // User cancelled
+  }
+}
+
+function handleEdit(item: Item) {
+  router.push({
+    name: 'publish',
+    query: { editId: String(item.id) },
+  })
+}
+
+async function refreshMyItems() {
+  await itemStore.fetchItems()
+  myItems.value = itemStore.items.filter(
+    i => i.publisherId === userStore.currentUser!.id,
+  )
 }
 
 function goToDetail(id: number) {
@@ -42,20 +72,24 @@ function goToDetail(id: number) {
     <h2>个人中心</h2>
 
     <!-- 用户信息 -->
-    <ElCard v-if="userStore.currentUser" class="user-card">
-      <template #header>
-        <span style="font-weight: 600">我的资料</span>
-      </template>
-      <ElDescriptions :column="2" border>
-        <ElDescriptionsItem label="昵称">{{ userStore.currentUser.nickname }}</ElDescriptionsItem>
-        <ElDescriptionsItem label="学院">{{ userStore.currentUser.college }}</ElDescriptionsItem>
-        <ElDescriptionsItem label="校区">{{ userStore.currentUser.campus }}</ElDescriptionsItem>
-        <ElDescriptionsItem label="角色">{{ userStore.currentUser.role }}</ElDescriptionsItem>
-        <ElDescriptionsItem label="信用分">
-          <ElTag type="success">{{ userStore.currentUser.creditScore }} 分</ElTag>
-        </ElDescriptionsItem>
-      </ElDescriptions>
-    </ElCard>
+    <div v-if="userStore.currentUser" class="user-profile-card">
+      <div class="profile-avatar-section">
+        <span class="profile-avatar">{{ userStore.currentUser.nickname.charAt(0) }}</span>
+        <div class="profile-name-section">
+          <h3 class="profile-nickname">{{ userStore.currentUser.nickname }}</h3>
+          <p class="profile-subtitle">
+            {{ userStore.currentUser.college }} · {{ userStore.currentUser.role }}
+          </p>
+          <p class="profile-campus">
+            📍 {{ userStore.currentUser.campus }}
+          </p>
+        </div>
+        <div class="profile-credit">
+          <span class="credit-value">{{ userStore.currentUser.creditScore }}</span>
+          <span class="credit-label">信用分</span>
+        </div>
+      </div>
+    </div>
 
     <ElTabs type="border-card" style="margin-top: 20px">
       <!-- 我的发布 -->
@@ -89,7 +123,7 @@ function goToDetail(id: number) {
               {{ formatDate(row.updatedAt) }}
             </template>
           </ElTableColumn>
-          <ElTableColumn label="操作" width="200">
+          <ElTableColumn label="操作" width="280">
             <template #default="{ row }">
               <ElSelect
                 v-model="selectedStatusMap[row.id]"
@@ -106,10 +140,18 @@ function goToDetail(id: number) {
               <ElButton size="small" type="primary" @click="updateStatus(row.id)" style="margin-left: 4px">
                 更新
               </ElButton>
+              <ElButton size="small" @click="handleEdit(row)" style="margin-left: 4px">
+                编辑
+              </ElButton>
+              <ElButton size="small" type="danger" @click="handleDelete(row.id)" style="margin-left: 4px">
+                删除
+              </ElButton>
             </template>
           </ElTableColumn>
         </ElTable>
-        <div v-else class="empty">暂无发布</div>
+        <ElEmpty v-else description="暂无发布，快去集市发布第一条信息吧！" :image-size="80">
+          <ElButton type="primary" @click="router.push({ name: 'publish' })">去发布</ElButton>
+        </ElEmpty>
       </ElTabPane>
 
       <!-- 我的收藏 -->
@@ -134,7 +176,9 @@ function goToDetail(id: number) {
           <ElTableColumn prop="campus" label="校区" width="100" />
           <ElTableColumn prop="status" label="状态" width="100" />
         </ElTable>
-        <div v-else class="empty">暂无收藏</div>
+        <ElEmpty v-else description="暂无收藏，去逛逛集市吧！" :image-size="80">
+          <ElButton type="primary" @click="router.push({ name: 'market-list' })">去逛逛</ElButton>
+        </ElEmpty>
       </ElTabPane>
     </ElTabs>
   </div>
@@ -149,9 +193,84 @@ function goToDetail(id: number) {
 .user-card {
   margin-bottom: 20px;
 }
-.empty {
-  text-align: center;
-  padding: 40px;
-  color: #999;
+
+.user-profile-card {
+  background: linear-gradient(135deg, var(--c-primary) 0%, var(--c-primary-light) 100%);
+  border-radius: var(--radius-xl);
+  padding: 28px;
+  margin-bottom: 24px;
+  color: #fff;
+  position: relative;
+  overflow: hidden;
+}
+.user-profile-card::after {
+  content: '';
+  position: absolute;
+  top: -50%;
+  right: -20%;
+  width: 200px;
+  height: 200px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.06);
+}
+
+.profile-avatar-section {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  position: relative;
+  z-index: 1;
+}
+.profile-avatar {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.2);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  font-weight: 700;
+  flex-shrink: 0;
+  border: 3px solid rgba(255,255,255,0.3);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+}
+.profile-name-section {
+  flex: 1;
+  min-width: 0;
+}
+.profile-nickname {
+  margin: 0 0 4px;
+  font-size: 20px;
+  font-weight: 700;
+}
+.profile-subtitle {
+  margin: 0 0 2px;
+  font-size: 13px;
+  opacity: 0.85;
+}
+.profile-campus {
+  margin: 0;
+  font-size: 13px;
+  opacity: 0.75;
+}
+.profile-credit {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: rgba(255,255,255,0.15);
+  border-radius: var(--radius-lg);
+  padding: 12px 20px;
+  flex-shrink: 0;
+}
+.credit-value {
+  font-size: 26px;
+  font-weight: 800;
+  line-height: 1.2;
+}
+.credit-label {
+  font-size: 11px;
+  opacity: 0.8;
 }
 </style>

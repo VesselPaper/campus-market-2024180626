@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
+import { onMounted, ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElRow, ElCol, ElCard, ElTag, ElButton, ElStatistic, ElAlert, ElSkeleton } from 'element-plus'
 import { useUserStore } from '@/stores/userStore'
@@ -59,6 +59,17 @@ const typeColors: Record<string, string> = {
   group: '#00B894',
   errand: '#00B4D8',
 }
+
+const timeGreeting = computed(() => {
+  const hour = new Date().getHours()
+  if (hour < 6) return '夜深了'
+  if (hour < 9) return '早上好'
+  if (hour < 12) return '上午好'
+  if (hour < 14) return '中午好'
+  if (hour < 18) return '下午好'
+  if (hour < 22) return '晚上好'
+  return '夜深了'
+})
 </script>
 
 <template>
@@ -78,13 +89,16 @@ const typeColors: Record<string, string> = {
       <div class="banner-content">
         <div class="banner-text">
           <h2 class="banner-title animate-fade-in-up" style="animation-delay: 0.05s">
-            {{ userStore.currentUser ? '嗨，' + userStore.currentUser.nickname + ' 👋' : '欢迎来到校园轻集市' }}
+            {{ userStore.currentUser ? timeGreeting + '，' + userStore.currentUser.nickname + ' 👋' : '欢迎来到校园轻集市' }}
           </h2>
           <p class="banner-subtitle animate-fade-in-up" style="animation-delay: 0.15s">
             {{ userStore.currentUser
               ? userStore.currentUser.college + ' · ' + userStore.currentUser.campus
               : '创建你的本地身份，开启校园集市之旅' }}
           </p>
+          <ElTag v-if="userStore.currentUser" type="success" class="credit-badge" size="small">
+            信用分 {{ userStore.currentUser.creditScore }}
+          </ElTag>
         </div>
         <div class="banner-stats animate-fade-in-up" style="animation-delay: 0.25s" v-if="loaded">
           <div class="stat-item">
@@ -127,12 +141,16 @@ const typeColors: Record<string, string> = {
 
     <!-- 快速操作 -->
     <div class="quick-actions">
-      <ElButton type="primary" round size="large" @click="goToList()">
-        <span class="btn-icon">🔍</span> 浏览全部
-      </ElButton>
-      <ElButton round size="large" @click="goToPublish()">
-        <span class="btn-icon">📝</span> 发布信息
-      </ElButton>
+      <div class="quick-action-card quick-browse" @click="goToList()">
+        <span class="qa-icon">🔍</span>
+        <span class="qa-text">浏览全部</span>
+        <span class="qa-arrow">→</span>
+      </div>
+      <div class="quick-action-card quick-publish" @click="goToPublish()">
+        <span class="qa-icon">📝</span>
+        <span class="qa-text">发布信息</span>
+        <span class="qa-arrow">→</span>
+      </div>
     </div>
 
     <!-- 最新发布 -->
@@ -215,6 +233,10 @@ const typeColors: Record<string, string> = {
   font-size: 14px;
   color: var(--c-text-secondary);
   margin: 0;
+}
+
+.credit-badge {
+  margin-top: 8px;
 }
 
 .banner-stats {
@@ -353,14 +375,83 @@ const typeColors: Record<string, string> = {
 
 /* ── Quick actions ── */
 .quick-actions {
-  display: flex;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
   gap: 12px;
   margin-bottom: 28px;
-  flex-wrap: wrap;
 }
 
-.btn-icon {
-  margin-right: 4px;
+.quick-action-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 18px 20px;
+  border-radius: var(--radius-lg);
+  cursor: pointer;
+  transition: all var(--transition-base);
+  position: relative;
+  overflow: hidden;
+  border: 1px solid transparent;
+}
+.quick-action-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  opacity: 0.08;
+  transition: opacity var(--transition-base);
+}
+.quick-action-card:hover {
+  transform: translateY(-2px);
+}
+.quick-action-card:hover .qa-arrow {
+  transform: translateX(3px);
+  opacity: 1;
+}
+
+.quick-browse {
+  background: linear-gradient(135deg, #FFF0E8, #FFE8DC);
+  border-color: rgba(255, 107, 53, 0.15);
+  color: var(--c-primary);
+}
+.quick-browse::before {
+  background: linear-gradient(135deg, var(--c-primary), var(--c-primary-light));
+}
+.quick-browse:hover {
+  box-shadow: 0 4px 16px rgba(255, 107, 53, 0.15);
+}
+
+.quick-publish {
+  background: linear-gradient(135deg, #E6F9F4, #D4F5EC);
+  border-color: rgba(0, 184, 148, 0.15);
+  color: var(--c-success);
+}
+.quick-publish::before {
+  background: linear-gradient(135deg, var(--c-success), #00d2a0);
+}
+.quick-publish:hover {
+  box-shadow: 0 4px 16px rgba(0, 184, 148, 0.15);
+}
+
+.qa-icon {
+  font-size: 22px;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255,255,255,0.7);
+  border-radius: var(--radius-md);
+  flex-shrink: 0;
+}
+.qa-text {
+  flex: 1;
+  font-weight: 600;
+  font-size: 15px;
+}
+.qa-arrow {
+  font-size: 16px;
+  opacity: 0.5;
+  transition: all var(--transition-base);
 }
 
 /* ── Item list ── */

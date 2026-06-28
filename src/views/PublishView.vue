@@ -4,21 +4,19 @@ import { ElCard } from 'element-plus'
 import { useItemStore } from '@/stores/itemStore'
 import { useUserStore } from '@/stores/userStore'
 import PublishForm from '@/components/PublishForm.vue'
-import { now } from '@/utils/date'
+import type { Item } from '@/types'
 
 const router = useRouter()
 const itemStore = useItemStore()
 const userStore = useUserStore()
 
-async function handleSubmit(data: Record<string, any>) {
+async function handleSubmit(data: Partial<Item>) {
   if (!userStore.currentUser) return
 
   const newItem = {
     ...data,
     publisherId: userStore.currentUser.id,
-    createdAt: now(),
-    updatedAt: now(),
-  } as any
+  } as Omit<Item, 'id'>
 
   const result = await itemStore.publishItem(newItem)
   router.push({ name: 'item-detail', params: { id: result.id } })

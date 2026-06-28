@@ -139,7 +139,7 @@
       ],
       "publisherId": 3,
       "status": "进行中",
-      "viewCount": 20,
+      "viewCount": 22,
       "favoriteCount": 1,
       "lostOrFound": "found",
       "eventTime": "2026-06-23 上午",
@@ -239,7 +239,7 @@
       ],
       "publisherId": 3,
       "status": "进行中",
-      "viewCount": 34,
+      "viewCount": 35,
       "favoriteCount": 2,
       "reward": 3,
       "taskPlace": "东区食堂",
@@ -264,7 +264,7 @@
       ],
       "publisherId": 4,
       "status": "已完成",
-      "viewCount": 25,
+      "viewCount": 26,
       "favoriteCount": 0,
       "price": 40,
       "condition": "九成新",
@@ -366,6 +366,12 @@
       "userId": 2,
       "itemId": 1,
       "createdAt": "2026-06-21 09:00:00"
+    },
+    {
+      "userId": 5,
+      "itemId": 4,
+      "createdAt": "2026-06-28T06:55:32.095Z",
+      "id": 4
     }
   ],
   "conversations": [

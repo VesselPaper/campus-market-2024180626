@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import { onMounted, computed } from 'vue'
+import { onMounted, computed, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ElCard, ElTag, ElButton, ElDescriptions, ElDescriptionsItem, ElImage, ElMessage, ElAlert, ElSkeleton } from 'element-plus'
 import { useItemStore } from '@/stores/itemStore'
 import { useUserStore } from '@/stores/userStore'
-import { ITEM_TYPES } from '@/utils/constants'
+import { ITEM_TYPES, PLACEHOLDER_IMAGES } from '@/utils/constants'
 import { formatDate } from '@/utils/date'
 import FavoriteButton from '@/components/FavoriteButton.vue'
 import BargainPanel from '@/components/BargainPanel.vue'
@@ -13,11 +13,15 @@ const route = useRoute()
 const router = useRouter()
 const itemStore = useItemStore()
 const userStore = useUserStore()
+const activeImageIndex = ref(0)
+const detailImageLoaded = ref(false)
+const detailImageError = ref(false)
 
 onMounted(async () => {
   const id = Number(route.params.id)
   if (id) {
     await itemStore.fetchItemById(id)
+    activeImageIndex.value = 0
     if (itemStore.currentItem) {
       await itemStore.editItem(id, {
         viewCount: (itemStore.currentItem.viewCount || 0) + 1,
@@ -36,6 +40,14 @@ const publisherName = computed(() => {
   if (!item.value) return ''
   const user = userStore.users.find(u => u.id === item.value!.publisherId)
   return user?.nickname || `用户${item.value.publisherId}`
+})
+
+const displayImages = computed(() => {
+  if (!item.value) return []
+  if (item.value.images && item.value.images.length > 0) {
+    return item.value.images
+  }
+  return [PLACEHOLDER_IMAGES[item.value.type]]
 })
 
 function goToMessage() {
@@ -60,7 +72,10 @@ function goBack() {
 
 <template>
   <div class="detail-page">
-    <ElButton @click="goBack" style="margin-bottom: 16px">← 返回</ElButton>
+    <ElButton class="back-btn" @click="goBack">
+      <span class="back-arrow">←</span>
+      <span>返回</span>
+    </ElButton>
 
     <ElAlert
       v-if="itemStore.error"
@@ -95,8 +110,33 @@ function goBack() {
         </div>
 
         <div class="detail-body">
-          <div class="detail-image" v-if="item.images && item.images.length > 0">
-            <ElImage :src="item.images[0]" fit="cover" style="width: 100%; max-height: 400px" />
+          <div class="detail-image" v-if="displayImages.length > 0">
+          <div class="detail-image-main">
+            <div v-if="!detailImageLoaded" class="detail-image-skeleton"></div>
+            <img
+              v-show="!detailImageError"
+              :src="displayImages[activeImageIndex]"
+              class="detail-main-image"
+              :class="{ loaded: detailImageLoaded }"
+              @load="detailImageLoaded = true"
+              @error="detailImageError = true"
+              alt=""
+            />
+            <div v-if="detailImageError" class="detail-image-fallback">
+              <span class="detail-fallback-icon">🖼️</span>
+              <span>图片加载失败</span>
+            </div>
+          </div>
+            <div v-if="displayImages.length > 1" class="image-thumbnails">
+              <div
+                v-for="(img, idx) in displayImages"
+                :key="idx"
+                :class="['thumb', { active: idx === activeImageIndex }]"
+                @click="activeImageIndex = idx; detailImageLoaded = false; detailImageError = false"
+              >
+                <ElImage :src="img" fit="cover" />
+              </div>
+            </div>
           </div>
 
           <ElDescriptions :column="1" border style="margin-top: 16px">
@@ -199,6 +239,76 @@ function goBack() {
 .detail-image {
   margin-bottom: 16px;
 }
+.detail-image-main {
+  position: relative;
+  width: 100%;
+  max-height: 420px;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  background: var(--c-bg);
+}
+.detail-main-image {
+  width: 100%;
+  max-height: 420px;
+  object-fit: contain;
+  display: block;
+  opacity: 0;
+  transition: opacity var(--transition-base);
+}
+.detail-main-image.loaded {
+  opacity: 1;
+}
+.detail-image-skeleton {
+  position: absolute;
+  inset: 0;
+  height: 320px;
+  background: linear-gradient(90deg, var(--c-primary-lighter) 25%, #f5e8e0 50%, var(--c-primary-lighter) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s ease infinite;
+}
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+.detail-image-fallback {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 320px;
+  background: var(--c-primary-lighter);
+  color: var(--c-text-muted);
+  font-size: 14px;
+}
+.detail-fallback-icon {
+  font-size: 40px;
+  opacity: 0.5;
+}
+
+.image-thumbnails {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+}
+.thumb {
+  width: 60px;
+  height: 60px;
+  border-radius: 8px;
+  overflow: hidden;
+  cursor: pointer;
+  border: 2px solid transparent;
+  transition: border-color var(--transition-base);
+  flex-shrink: 0;
+}
+.thumb.active {
+  border-color: var(--c-primary);
+}
+.thumb:hover {
+  border-color: var(--c-primary-light);
+}
 .detail-desc {
   margin-top: 16px;
   background: #f9f9f9;
@@ -212,5 +322,23 @@ function goBack() {
   display: flex;
   gap: 12px;
   margin-top: 16px;
+}
+
+.back-btn {
+  margin-bottom: 16px;
+  transition: all var(--transition-base) !important;
+  padding: 8px 16px !important;
+}
+.back-btn:hover .back-arrow {
+  animation: arrowMove 0.4s ease;
+}
+.back-arrow {
+  display: inline-block;
+  margin-right: 4px;
+}
+@keyframes arrowMove {
+  0% { transform: translateX(0); }
+  50% { transform: translateX(-4px); }
+  100% { transform: translateX(0); }
 }
 </style>

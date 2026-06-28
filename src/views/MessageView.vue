@@ -52,8 +52,6 @@ function getUserName(userId: number): string {
 
 async function selectConversation(convId: number) {
   activeConvId.value = convId
-  const conv = messageStore.conversations.find(c => c.id === convId)
-  if (conv) messageStore.currentConversation = conv
   await messageStore.markAsRead(convId)
   await messageStore.fetchMessages(convId)
 }

@@ -1,5 +1,6 @@
 import axios from 'axios'
 import { API_BASE_URL } from '@/utils/constants'
+import { logger } from '@/utils/logger'
 
 const request = axios.create({
   baseURL: API_BASE_URL,
@@ -9,7 +10,7 @@ const request = axios.create({
 request.interceptors.response.use(
   (res) => res,
   (error) => {
-    console.error('API Error:', error.message)
+    logger.error('API Error:', error.message)
     return Promise.reject(error)
   },
 )

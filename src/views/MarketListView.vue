@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { ElEmpty, ElPagination, ElAlert, ElSkeleton } from 'element-plus'
+import { ElEmpty, ElPagination, ElAlert, ElSkeleton, ElButton } from 'element-plus'
 import { useItemStore } from '@/stores/itemStore'
 import MarketItemCard from '@/components/MarketItemCard.vue'
 import MarketFilterBar from '@/components/MarketFilterBar.vue'
-import type { FilterParams } from '@/types'
+import type { FilterParams, ItemType } from '@/types'
 
 const route = useRoute()
 const router = useRouter()
@@ -15,14 +15,14 @@ const pageSize = 10
 
 onMounted(async () => {
   const params: FilterParams = {}
-  if (route.query.type) params.type = route.query.type as any
+  if (route.query.type) params.type = route.query.type as ItemType
   await itemStore.fetchItems(params)
 })
 
 function handleSearch(raw: Record<string, string>) {
   const params: FilterParams = {}
   if (raw.keyword) params.keyword = raw.keyword
-  if (raw.type) params.type = raw.type as any
+  if (raw.type) params.type = raw.type as ItemType
   if (raw.campus) params.campus = raw.campus
   if (raw.status) params.status = raw.status
   if (raw.sortBy) params.sortBy = raw.sortBy
@@ -32,6 +32,10 @@ function handleSearch(raw: Record<string, string>) {
 
 function goToDetail(id: number) {
   router.push({ name: 'item-detail', params: { id } })
+}
+
+function goToPublish() {
+  router.push({ name: 'publish' })
 }
 
 const paginatedItems = () => {
@@ -64,8 +68,11 @@ const paginatedItems = () => {
       <ElSkeleton :count="3" animated />
     </div>
     <div v-else-if="itemStore.items.length === 0" class="empty-state">
-      <ElEmpty :description="itemStore.error ? '请确认 JSON Server 是否启动' : '暂无匹配的信息'" :image-size="100" />
-      <p class="empty-hint" v-if="!itemStore.error">试试调整筛选条件</p>
+      <ElEmpty :description="itemStore.error ? '请确认 JSON Server 是否启动' : '暂无匹配的信息'" :image-size="100">
+        <template v-if="!itemStore.error">
+          <ElButton type="primary" @click="goToPublish">去发布</ElButton>
+        </template>
+      </ElEmpty>
     </div>
     <div v-else class="item-list">
       <MarketItemCard

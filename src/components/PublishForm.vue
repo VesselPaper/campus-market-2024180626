@@ -1,12 +1,12 @@
 <script setup lang="ts">
 import { reactive, computed, ref } from 'vue'
-import { ElForm, ElFormItem, ElInput, ElSelect, ElOption, ElButton, ElMessage, ElRadioGroup, ElRadio, ElInputNumber } from 'element-plus'
+import { ElForm, ElFormItem, ElInput, ElSelect, ElOption, ElButton, ElMessage, ElRadioGroup, ElRadio, ElInputNumber, ElTag } from 'element-plus'
 import { ITEM_TYPES, CAMPUS_LIST } from '@/utils/constants'
-import type { ItemType } from '@/types'
+import type { ItemType, Item } from '@/types'
 import { now } from '@/utils/date'
 
 const emit = defineEmits<{
-  submit: [data: Record<string, any>]
+  submit: [data: Partial<Item>]
 }>()
 
 const formRef = ref<InstanceType<typeof ElForm>>()
@@ -18,6 +18,7 @@ const form = reactive({
   campus: '',
   location: '',
   tags: '',
+  imageUrls: '',
   // secondhand
   price: undefined as number | undefined,
   condition: '',
@@ -36,9 +37,20 @@ const form = reactive({
 
 const typeLabel = computed(() => ITEM_TYPES.find(t => t.value === form.type)?.label || '')
 
-function buildSubmitData() {
+const imagePreviewList = computed(() => {
+  return form.imageUrls
+    .split(/[,，\n]/)
+    .map(s => s.trim())
+    .filter(Boolean)
+})
+
+function buildSubmitData(): Partial<Item> {
   const tags = form.tags
     ? form.tags.split(/[,，、]/).map(s => s.trim()).filter(Boolean)
+    : []
+
+  const images = form.imageUrls
+    ? form.imageUrls.split(/[,，\n]/).map(s => s.trim()).filter(Boolean)
     : []
 
   const base = {
@@ -48,7 +60,7 @@ function buildSubmitData() {
     campus: form.campus,
     location: form.location,
     tags,
-    images: [] as string[],
+    images,
     status: '进行中',
     viewCount: 0,
     favoriteCount: 0,
@@ -56,7 +68,7 @@ function buildSubmitData() {
     updatedAt: now(),
   }
 
-  const extra: Record<string, any> = {}
+  const extra: Partial<Item> = {}
 
   if (form.type === 'secondhand') {
     extra.price = form.price
@@ -122,6 +134,26 @@ async function handleSubmit() {
       <ElInput v-model="form.tags" placeholder="用逗号分隔，如：教材, 二手" />
     </ElFormItem>
 
+    <ElFormItem label="图片链接">
+      <ElInput
+        v-model="form.imageUrls"
+        type="textarea"
+        :rows="2"
+        placeholder="每行一个图片链接，或用逗号分隔"
+      />
+      <div v-if="imagePreviewList.length > 0" class="image-preview">
+        <ElTag
+          v-for="(url, idx) in imagePreviewList"
+          :key="idx"
+          size="small"
+          type="info"
+          class="preview-tag"
+        >
+          图片 {{ idx + 1 }}
+        </ElTag>
+      </div>
+    </ElFormItem>
+
     <!-- 二手交易专属字段 -->
     <template v-if="form.type === 'secondhand'">
       <ElFormItem label="价格" prop="price" :rules="[{ required: true, message: '请输入价格' }]">
@@ -185,5 +217,14 @@ async function handleSubmit() {
 <style scoped>
 .publish-form {
   max-width: 600px;
+}
+.image-preview {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 8px;
+}
+.preview-tag {
+  cursor: default;
 }
 </style>
