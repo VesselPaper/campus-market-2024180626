@@ -4,7 +4,7 @@
       "id": 1,
       "nickname": "张三",
       "college": "计算机学院",
-      "campus": "北校区",
+      "campus": "成龙校区",
       "role": "大二学生",
       "creditScore": 85,
       "avatar": "https://placehold.co/80x80/FF6B35/FFFFFF?text=ZS"
@@ -13,7 +13,7 @@
       "id": 2,
       "nickname": "李四",
       "college": "经管学院",
-      "campus": "南校区",
+      "campus": "狮子山校区",
       "role": "大三学生",
       "creditScore": 90,
       "avatar": "https://placehold.co/80x80/00B4D8/FFFFFF?text=LS"
@@ -22,7 +22,7 @@
       "id": 3,
       "nickname": "王五",
       "college": "数学学院",
-      "campus": "东校区",
+      "campus": "成龙校区",
       "role": "大四学生",
       "creditScore": 78,
       "avatar": "https://placehold.co/80x80/00B894/FFFFFF?text=WW"
@@ -31,7 +31,7 @@
       "id": 4,
       "nickname": "赵六",
       "college": "外国语学院",
-      "campus": "西校区",
+      "campus": "狮子山校区",
       "role": "大一学生",
       "creditScore": 82,
       "avatar": "https://placehold.co/80x80/FDCB6E/FFFFFF?text=ZL"
@@ -39,7 +39,7 @@
     {
       "nickname": "纸船",
       "college": "计算机学院",
-      "campus": "南校区",
+      "campus": "成龙校区",
       "role": "大二学生",
       "creditScore": 80,
       "avatar": "https://placehold.co/80x80/74B9FF/FFFFFF?text=ZC",
@@ -52,7 +52,7 @@
       "type": "secondhand",
       "title": "转让高数教材（第六版）",
       "description": "高等数学第六版教材，保存较好，内页有少量笔记但不影响阅读。适合大一、大二学生使用。原价45元，现价20元。",
-      "campus": "北校区",
+      "campus": "成龙校区",
       "location": "图书馆门口",
       "tags": [
         "教材",
@@ -77,7 +77,7 @@
       "type": "secondhand",
       "title": "九成新自行车出售",
       "description": "大二买的捷安特自行车，骑了一年多，车况良好，轮胎刚换过。适合校园代步。原价600，现价300。",
-      "campus": "北校区",
+      "campus": "狮子山校区",
       "location": "北区宿舍楼下",
       "tags": [
         "自行车",
@@ -102,7 +102,7 @@
       "type": "lostfound",
       "title": "丢失校园卡（校园卡号2024001）",
       "description": "6月22日下午在北区食堂丢失校园卡一张，卡面为蓝色，背面有姓名标签。如有捡到请联系我，非常感谢！",
-      "campus": "北校区",
+      "campus": "成龙校区",
       "location": "北区食堂",
       "tags": [
         "校园卡",
@@ -127,7 +127,7 @@
       "type": "lostfound",
       "title": "捡到黑色水杯一个",
       "description": "在南校区图书馆二楼靠窗座位捡到黑色保温水杯一个，杯身有卡通贴纸。请失主联系认领。",
-      "campus": "南校区",
+      "campus": "狮子山校区",
       "location": "南校区图书馆二楼",
       "tags": [
         "水杯",
@@ -152,7 +152,7 @@
       "type": "group",
       "title": "奶茶拼单！一点点满减凑单",
       "description": "一点点外卖满30减5，现在已经有2杯了，再凑1杯即可。有想喝的同学一起拼吗？北校区配送。",
-      "campus": "北校区",
+      "campus": "成龙校区",
       "location": "北校区",
       "tags": [
         "奶茶",
@@ -177,7 +177,7 @@
       "type": "group",
       "title": "找学习搭子一起刷高数",
       "description": "期末高数复习，想找1-2个学习搭子一起刷题。每天晚上7点后在图书馆自习室碰面，互相监督、一起进步！",
-      "campus": "东校区",
+      "campus": "狮子山校区",
       "location": "东校区图书馆",
       "tags": [
         "学习",
@@ -202,7 +202,7 @@
       "type": "errand",
       "title": "代取快递（北区菜鸟驿站→南区宿舍）",
       "description": "有一个快递在北校区菜鸟驿站，需要帮忙取件送到南校区7号楼宿舍。快递不大，书本大小。酬劳5元。",
-      "campus": "南校区",
+      "campus": "成龙校区",
       "location": "北区菜鸟驿站→南区7号楼",
       "tags": [
         "代取",
@@ -214,7 +214,7 @@
       ],
       "publisherId": 4,
       "status": "进行中",
-      "viewCount": 43,
+      "viewCount": 45,
       "favoriteCount": 3,
       "reward": 5,
       "taskPlace": "北区菜鸟驿站",
@@ -227,7 +227,7 @@
       "type": "errand",
       "title": "代买早餐送到宿舍",
       "description": "早上有课起不来，求帮忙带一份早餐（包子+豆浆）到东区12号楼303室。酬劳3元，需要早上7:50前送到。",
-      "campus": "东校区",
+      "campus": "狮子山校区",
       "location": "东区食堂→东区12号楼",
       "tags": [
         "代买",
@@ -239,7 +239,7 @@
       ],
       "publisherId": 3,
       "status": "进行中",
-      "viewCount": 32,
+      "viewCount": 34,
       "favoriteCount": 2,
       "reward": 3,
       "taskPlace": "东区食堂",
@@ -252,7 +252,7 @@
       "type": "secondhand",
       "title": "台灯（九成新）",
       "description": "去年买的LED护眼台灯，三档调光，使用频率不高，几乎全新。适合宿舍使用。原价80，现价40。",
-      "campus": "西校区",
+      "campus": "成龙校区",
       "location": "西区3号楼",
       "tags": [
         "台灯",
@@ -277,7 +277,7 @@
       "type": "lostfound",
       "title": "捡到钥匙串（三把钥匙+门禁卡）",
       "description": "在西区操场跑道边捡到钥匙串一个，上面有三把钥匙和一个蓝色门禁卡。请失主到体育部办公室认领。",
-      "campus": "西校区",
+      "campus": "狮子山校区",
       "location": "西区操场",
       "tags": [
         "钥匙",
@@ -302,7 +302,7 @@
       "type": "group",
       "title": "水果团购：西瓜拼单",
       "description": "校门口水果店西瓜特价，一个太大吃不完。找2-3人一起拼一个瓜，每人约5元。",
-      "campus": "北校区",
+      "campus": "成龙校区",
       "location": "北校门口水果店",
       "tags": [
         "水果",
@@ -327,7 +327,7 @@
       "type": "errand",
       "title": "帮忙交一份材料到行政楼",
       "description": "有一份学院盖章材料需要交到行政楼308办公室，我下午有课走不开。帮忙跑一趟，酬劳5元。",
-      "campus": "中心校区",
+      "campus": "狮子山校区",
       "location": "行政楼308",
       "tags": [
         "代交",
@@ -339,7 +339,7 @@
       ],
       "publisherId": 2,
       "status": "已完成",
-      "viewCount": 22,
+      "viewCount": 23,
       "favoriteCount": 1,
       "reward": 5,
       "taskPlace": "行政楼308",

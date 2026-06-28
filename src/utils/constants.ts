@@ -1,6 +1,6 @@
 import type { ItemType } from '@/types'
 
-export const API_BASE_URL = 'http://localhost:3000'
+export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000'
 
 export const ITEM_TYPES: { label: string; value: ItemType }[] = [
   { label: '二手交易', value: 'secondhand' },
@@ -9,7 +9,7 @@ export const ITEM_TYPES: { label: string; value: ItemType }[] = [
   { label: '跑腿委托', value: 'errand' },
 ]
 
-export const CAMPUS_LIST = ['北校区', '南校区', '东校区', '西校区', '中心校区']
+export const CAMPUS_LIST = ['成龙校区', '狮子山校区']
 
 export const COLLEGE_LIST = ['计算机学院', '数学学院', '物理学院', '外国语学院', '经管学院', '文学院', '艺术学院', '法学院']
 
@@ -34,10 +34,19 @@ export const SORT_OPTIONS: { label: string; value: string }[] = [
 ]
 
 export const PLACEHOLDER_IMAGES: Record<ItemType, string> = {
-  secondhand: 'https://picsum.photos/seed/secondhand/400/300',
-  lostfound: 'https://picsum.photos/seed/lostfound/400/300',
-  group: 'https://picsum.photos/seed/group/400/300',
-  errand: 'https://picsum.photos/seed/errand/400/300',
+  secondhand: 'https://placehold.co/400x300/FFF0E8/FF6B35?text=Secondhand',
+  lostfound: 'https://placehold.co/400x300/FFF8E0/FDCB6E?text=Lost+Found',
+  group: 'https://placehold.co/400x300/E6F9F4/00B894?text=Group',
+  errand: 'https://placehold.co/400x300/E6F7FC/00B4D8?text=Errand',
+}
+
+export const AVATAR_COLORS = ['#FF6B35', '#00B4D8', '#00B894', '#FDCB6E', '#74B9FF', '#FF6B6B']
+
+export function getAvatarUrl(nickname: string): string {
+  const idx = (nickname.charCodeAt(0) + nickname.length) % AVATAR_COLORS.length
+  const color = AVATAR_COLORS[idx]
+  const initial = nickname.charAt(0)
+  return `https://placehold.co/80x80/${color.slice(1)}/FFFFFF?text=${encodeURIComponent(initial)}`
 }
 
 export const SAFETY_NOTICES = [
