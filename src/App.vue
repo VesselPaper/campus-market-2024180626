@@ -59,12 +59,12 @@ function navigate(name: string) {
           :class="{ 'is-active': isActive(item.name) }"
         >
           <span class="nav-icon">{{ item.icon }}</span>
-          <span v-if="item.name === 'message'">
-            <ElBadge :value="unreadCount" :hidden="unreadCount === 0" class="msg-badge">
-              {{ item.label }}
-            </ElBadge>
-          </span>
-          <span v-else>{{ item.label }}</span>
+          <span>{{ item.label }}</span>
+          <ElBadge
+            v-if="item.name === 'message' && unreadCount > 0"
+            :value="unreadCount"
+            class="nav-badge"
+          />
         </ElMenuItem>
       </ElMenu>
 
@@ -205,8 +205,17 @@ function navigate(name: string) {
   font-size: 16px;
 }
 
-.msg-badge {
-  line-height: 1;
+.nav-badge {
+  margin-left: 2px;
+}
+.nav-badge :deep(.el-badge__content) {
+  top: -6px;
+  right: -4px;
+  font-size: 10px;
+  height: 16px;
+  line-height: 16px;
+  padding: 0 5px;
+  border: none;
 }
 
 /* ── Header right ── */
