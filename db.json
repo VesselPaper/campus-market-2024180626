@@ -44,6 +44,15 @@
       "creditScore": 80,
       "avatar": "https://placehold.co/80x80/74B9FF/FFFFFF?text=ZC",
       "id": 5
+    },
+    {
+      "nickname": "帆船",
+      "college": "经管学院",
+      "campus": "成龙校区",
+      "role": "研究生",
+      "creditScore": 80,
+      "avatar": "",
+      "id": 6
     }
   ],
   "items": [
@@ -139,7 +148,7 @@
       ],
       "publisherId": 3,
       "status": "进行中",
-      "viewCount": 22,
+      "viewCount": 24,
       "favoriteCount": 1,
       "lostOrFound": "found",
       "eventTime": "2026-06-23 上午",
@@ -214,7 +223,7 @@
       ],
       "publisherId": 4,
       "status": "进行中",
-      "viewCount": 45,
+      "viewCount": 46,
       "favoriteCount": 3,
       "reward": 5,
       "taskPlace": "北区菜鸟驿站",
@@ -346,6 +355,25 @@
       "expectedTime": "2026-06-24 17:00:00 前",
       "createdAt": "2026-06-23 08:30:00",
       "updatedAt": "2026-06-24 15:00:00"
+    },
+    {
+      "type": "secondhand",
+      "title": "电脑",
+      "description": "旧电脑",
+      "campus": "成龙校区",
+      "location": "",
+      "tags": [],
+      "images": [],
+      "status": "进行中",
+      "viewCount": 1,
+      "favoriteCount": 0,
+      "createdAt": "2026-06-28 16:16:43",
+      "updatedAt": "2026-06-28 16:16:43",
+      "price": 900,
+      "condition": "一般",
+      "allowBargain": true,
+      "publisherId": 6,
+      "id": 13
     }
   ],
   "favorites": [
@@ -369,8 +397,8 @@
     },
     {
       "userId": 5,
-      "itemId": 4,
-      "createdAt": "2026-06-28T06:55:32.095Z",
+      "itemId": 7,
+      "createdAt": "2026-06-28T08:14:16.770Z",
       "id": 4
     }
   ],
@@ -397,9 +425,9 @@
       "itemId": 8,
       "buyerId": 5,
       "publisherId": 3,
-      "lastMessage": "dd",
+      "lastMessage": "。。",
       "unreadCount": 0,
-      "updatedAt": "2026-06-28 14:30:40",
+      "updatedAt": "2026-06-28 16:13:47",
       "id": 3
     },
     {
@@ -592,6 +620,16 @@
       "createdAt": "2026-06-28 14:30:40",
       "read": false,
       "id": 21
+    },
+    {
+      "conversationId": 3,
+      "senderId": 5,
+      "receiverId": 3,
+      "content": "。。",
+      "messageType": "text",
+      "createdAt": "2026-06-28 16:13:47",
+      "read": false,
+      "id": 22
     }
   ],
   "notices": [

@@ -68,50 +68,56 @@ export const useMessageStore = defineStore('message', () => {
 
     const senderId = senderIdOverride || userStore.currentUser.id
 
-    // 发送消息
-    const msg = await sendMessage({
-      conversationId: convId,
-      senderId,
-      receiverId,
-      content,
-      messageType,
-      createdAt: now(),
-      read: false,
-    })
-    currentMessages.value.push(msg.data)
-
-    // 更新会话最后消息
-    await updateConversation(convId, {
-      lastMessage: content,
-      unreadCount: (currentConversation.value?.unreadCount || 0) + 1,
-      updatedAt: now(),
-    })
-    if (currentConversation.value?.id === convId) {
-      currentConversation.value.lastMessage = content
-      currentConversation.value.unreadCount += 1
-      currentConversation.value.updatedAt = now()
-    }
-    // 同时更新 conversations 列表中的对应项
-    const convInList = conversations.value.find(c => c.id === convId)
-    if (convInList) {
-      convInList.lastMessage = content
-      convInList.unreadCount += 1
-      convInList.updatedAt = now()
-    }
-
-    // 普通文本消息才生成模拟回复
-    if (messageType === 'text' && !senderIdOverride) {
-      const replyContent = getMockReply()
-      const reply = await sendMessage({
+    try {
+      // 发送消息
+      const msg = await sendMessage({
         conversationId: convId,
-        senderId: receiverId,
-        receiverId: userStore.currentUser.id,
-        content: replyContent,
-        messageType: 'text',
+        senderId,
+        receiverId,
+        content,
+        messageType,
         createdAt: now(),
         read: false,
       })
-      currentMessages.value.push(reply.data)
+      currentMessages.value.push(msg.data)
+
+      // 更新会话最后消息
+      const newUnreadCount = (currentConversation.value?.unreadCount || 0) + 1
+      await updateConversation(convId, {
+        lastMessage: content,
+        unreadCount: newUnreadCount,
+        updatedAt: now(),
+      })
+
+      // 同时更新本地会话数据（convInList 和 currentConversation 可能是同一引用，只更新一次）
+      const convInList = conversations.value.find(c => c.id === convId)
+      if (convInList) {
+        convInList.lastMessage = content
+        convInList.unreadCount = newUnreadCount
+        convInList.updatedAt = now()
+      }
+      if (currentConversation.value?.id === convId && currentConversation.value !== convInList) {
+        currentConversation.value.lastMessage = content
+        currentConversation.value.unreadCount = newUnreadCount
+        currentConversation.value.updatedAt = now()
+      }
+
+      // 普通文本消息才生成模拟回复
+      if (messageType === 'text' && !senderIdOverride) {
+        const replyContent = getMockReply()
+        const reply = await sendMessage({
+          conversationId: convId,
+          senderId: receiverId,
+          receiverId: userStore.currentUser.id,
+          content: replyContent,
+          messageType: 'text',
+          createdAt: now(),
+          read: false,
+        })
+        currentMessages.value.push(reply.data)
+      }
+    } catch (e) {
+      console.error('发送消息失败:', e)
     }
   }
 
