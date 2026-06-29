@@ -40,15 +40,21 @@ async function send() {
     return
   }
   sending.value = true
+  const text = newMsg.value.trim()
   try {
-    // 显式传递 conversationId，不依赖 currentConversation
-    await messageStore.sendTextMessage(
-      newMsg.value.trim(),
+    const ok = await messageStore.sendTextMessage(
+      text,
       props.receiverId,
       props.conversationId,
     )
-    newMsg.value = ''
-    scrollToBottom()
+    if (ok) {
+      newMsg.value = ''
+      scrollToBottom()
+    } else {
+      ElMessage.error('发送失败，请检查后端服务是否运行')
+    }
+  } catch (e) {
+    ElMessage.error('发送失败: ' + (e instanceof Error ? e.message : '未知错误'))
   } finally {
     sending.value = false
   }
