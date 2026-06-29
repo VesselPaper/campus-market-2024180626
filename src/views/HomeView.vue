@@ -1,16 +1,17 @@
 <script setup lang="ts">
-import { onMounted, ref, computed } from 'vue'
+import { onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
-import { ElRow, ElCol, ElCard, ElTag, ElButton, ElStatistic, ElAlert, ElSkeleton } from 'element-plus'
+import { ElRow, ElCol, ElAlert } from 'element-plus'
 import { useUserStore } from '@/stores/userStore'
 import { useItemStore } from '@/stores/itemStore'
 import { useFavoriteStore } from '@/stores/favoriteStore'
 import { useMessageStore } from '@/stores/messageStore'
 import { ITEM_TYPES } from '@/utils/constants'
-import { calcRecentItems } from '@/utils/statistics'
+import { calcHotItems } from '@/utils/statistics'
 import MarketItemCard from '@/components/MarketItemCard.vue'
+import BannerCarousel from '@/components/BannerCarousel.vue'
+import BackToTop from '@/components/BackToTop.vue'
 import SafetyNotice from '@/components/SafetyNotice.vue'
-import type { Item } from '@/types'
 
 const router = useRouter()
 const userStore = useUserStore()
@@ -18,28 +19,21 @@ const itemStore = useItemStore()
 const favoriteStore = useFavoriteStore()
 const messageStore = useMessageStore()
 
-const recentItems = ref<Item[]>([])
-const loaded = ref(false)
+const hotItems = computed(() => calcHotItems(itemStore.items))
 
 onMounted(async () => {
   await itemStore.fetchItems()
-  recentItems.value = calcRecentItems(itemStore.items)
   if (userStore.currentUser) {
     await Promise.all([
       favoriteStore.fetchFavorites(),
       messageStore.fetchConversations(),
     ])
   }
-  loaded.value = true
 })
 
 function goToList(type?: string) {
   const query = type ? { type } : {}
   router.push({ name: 'market-list', query })
-}
-
-function goToDetail(id: number) {
-  router.push({ name: 'item-detail', params: { id } })
 }
 
 function goToPublish() {
@@ -60,16 +54,6 @@ const typeColors: Record<string, string> = {
   errand: '#00B4D8',
 }
 
-const timeGreeting = computed(() => {
-  const hour = new Date().getHours()
-  if (hour < 6) return '夜深了'
-  if (hour < 9) return '早上好'
-  if (hour < 12) return '上午好'
-  if (hour < 14) return '中午好'
-  if (hour < 18) return '下午好'
-  if (hour < 22) return '晚上好'
-  return '夜深了'
-})
 </script>
 
 <template>
@@ -83,41 +67,8 @@ const timeGreeting = computed(() => {
       class="page-alert"
     />
 
-    <!-- 欢迎横幅 -->
-    <div class="welcome-banner">
-      <div class="banner-bg"></div>
-      <div class="banner-content">
-        <div class="banner-text">
-          <h2 class="banner-title animate-fade-in-up" style="animation-delay: 0.05s">
-            {{ userStore.currentUser ? timeGreeting + '，' + userStore.currentUser.nickname + ' 👋' : '欢迎来到校园轻集市' }}
-          </h2>
-          <p class="banner-subtitle animate-fade-in-up" style="animation-delay: 0.15s">
-            {{ userStore.currentUser
-              ? userStore.currentUser.college + ' · ' + userStore.currentUser.campus
-              : '创建你的本地身份，开启校园集市之旅' }}
-          </p>
-          <ElTag v-if="userStore.currentUser" type="success" class="credit-badge" size="small">
-            信用分 {{ userStore.currentUser.creditScore }}
-          </ElTag>
-        </div>
-        <div class="banner-stats animate-fade-in-up" style="animation-delay: 0.25s" v-if="loaded">
-          <div class="stat-item">
-            <span class="stat-value">{{ itemStore.items.length }}</span>
-            <span class="stat-label">信息总数</span>
-          </div>
-          <div class="stat-divider"></div>
-          <div class="stat-item">
-            <span class="stat-value">{{ favoriteStore.favorites.length }}</span>
-            <span class="stat-label">我的收藏</span>
-          </div>
-          <div class="stat-divider"></div>
-          <div class="stat-item">
-            <span class="stat-value">{{ messageStore.getUnreadCount() }}</span>
-            <span class="stat-label">未读消息</span>
-          </div>
-        </div>
-      </div>
-    </div>
+    <!-- 推荐大屏 -->
+    <BannerCarousel />
 
     <!-- 快捷入口 -->
     <div class="section">
@@ -153,29 +104,24 @@ const timeGreeting = computed(() => {
       </div>
     </div>
 
-    <!-- 最新发布 -->
+    <!-- 推荐商品 -->
     <div class="section">
-      <div class="section-header">
-        <h3 class="section-title">最新发布</h3>
-        <span class="section-more" @click="goToList()">查看全部 →</span>
+      <h3 class="section-title">推荐商品</h3>
+      <div v-if="hotItems.length > 0" class="item-list">
+        <MarketItemCard
+          v-for="item in hotItems"
+          :key="item.id"
+          :item="item"
+          @click="router.push({ name: 'item-detail', params: { id: item.id } })"
+        />
       </div>
-      <ElSkeleton :loading="itemStore.loading" :count="3" animated>
-        <template #default>
-          <div v-if="recentItems.length > 0" class="item-list">
-            <MarketItemCard
-              v-for="item in recentItems"
-              :key="item.id"
-              :item="item"
-              @click="goToDetail"
-            />
-          </div>
-          <ElEmpty v-else description="暂无最新信息" :image-size="80" />
-        </template>
-      </ElSkeleton>
+      <p v-else class="empty-hint">暂无推荐内容</p>
     </div>
 
     <!-- 安全提醒 -->
     <SafetyNotice />
+
+    <BackToTop />
   </div>
 </template>
 
@@ -191,98 +137,9 @@ const timeGreeting = computed(() => {
   border-radius: var(--radius-md) !important;
 }
 
-/* ── Welcome Banner ── */
-.welcome-banner {
-  position: relative;
-  border-radius: var(--radius-xl);
-  overflow: hidden;
-  padding: 32px;
-  margin-bottom: 28px;
-}
-
-.banner-bg {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(135deg, var(--c-primary) 0%, var(--c-primary-light) 50%, #FFB088 100%);
-  opacity: 0.1;
-}
-
-.banner-bg::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: radial-gradient(circle at 80% 20%, rgba(255, 107, 53, 0.15) 0%, transparent 60%);
-}
-
-.banner-content {
-  position: relative;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 24px;
-}
-
-.banner-title {
-  font-size: 24px;
-  font-weight: 700;
-  color: var(--c-text);
-  margin: 0 0 6px;
-}
-
-.banner-subtitle {
-  font-size: 14px;
-  color: var(--c-text-secondary);
-  margin: 0;
-}
-
-.credit-badge {
-  margin-top: 8px;
-}
-
-.banner-stats {
-  display: flex;
-  align-items: center;
-  gap: 20px;
-  background: rgba(255, 255, 255, 0.8);
-  backdrop-filter: blur(8px);
-  border-radius: var(--radius-lg);
-  padding: 16px 24px;
-  flex-shrink: 0;
-}
-
-.stat-item {
-  text-align: center;
-}
-
-.stat-value {
-  display: block;
-  font-size: 24px;
-  font-weight: 700;
-  color: var(--c-primary);
-  line-height: 1.2;
-}
-
-.stat-label {
-  font-size: 12px;
-  color: var(--c-text-muted);
-}
-
-.stat-divider {
-  width: 1px;
-  height: 32px;
-  background: var(--c-border);
-}
-
 /* ── Section ── */
 .section {
   margin-bottom: 28px;
-}
-
-.section-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 14px;
 }
 
 .section-title {
@@ -302,17 +159,6 @@ const timeGreeting = computed(() => {
   height: 3px;
   background: var(--c-primary);
   border-radius: 2px;
-}
-
-.section-more {
-  font-size: 13px;
-  color: var(--c-primary);
-  cursor: pointer;
-  font-weight: 500;
-  transition: opacity var(--transition-fast);
-}
-.section-more:hover {
-  opacity: 0.7;
 }
 
 /* ── Entry Cards ── */
@@ -371,6 +217,18 @@ const timeGreeting = computed(() => {
 .entry-card:hover .entry-arrow {
   transform: translateX(3px);
   color: var(--c-primary);
+}
+
+/* ── Item list ── */
+.item-list {
+  animation: fadeIn 0.5s ease both;
+}
+
+.empty-hint {
+  text-align: center;
+  padding: 40px 0;
+  color: var(--c-text-muted);
+  font-size: 14px;
 }
 
 /* ── Quick actions ── */
@@ -452,11 +310,6 @@ const timeGreeting = computed(() => {
   font-size: 16px;
   opacity: 0.5;
   transition: all var(--transition-base);
-}
-
-/* ── Item list ── */
-.item-list {
-  animation: fadeIn 0.5s ease both;
 }
 
 /* ── Responsive ── */

@@ -45,6 +45,14 @@ function handleLogout() {
   userStore.clearUser()
   router.push({ name: 'create-user' })
 }
+
+function handleAvatarCommand(cmd: string) {
+  if (cmd === 'logout') {
+    handleLogout()
+  } else {
+    navigate(cmd)
+  }
+}
 </script>
 
 <template>
@@ -89,18 +97,34 @@ function handleLogout() {
           <span>发布</span>
         </ElButton>
         <span v-if="userStore.currentUser" class="user-badge">
-          <span class="user-avatar">{{ userStore.currentUser.nickname.charAt(0) }}</span>
-          <span class="user-name">{{ userStore.currentUser.nickname }}</span>
+          <ElDropdown trigger="hover" @command="handleAvatarCommand">
+            <span class="user-avatar-dropdown">
+              <span class="user-avatar">{{ userStore.currentUser.nickname.charAt(0) }}</span>
+              <span class="user-name">{{ userStore.currentUser.nickname }}</span>
+              <span class="dropdown-arrow">▾</span>
+            </span>
+            <template #dropdown>
+              <ElDropdownMenu>
+                <ElDropdownItem command="profile">
+                  <span class="dd-icon">👤</span> 个人中心
+                </ElDropdownItem>
+                <ElDropdownItem command="message">
+                  <span class="dd-icon">💬</span> 消息中心
+                  <ElBadge v-if="unreadCount > 0" :value="unreadCount" :max="99" class="dd-badge" />
+                </ElDropdownItem>
+                <ElDropdownItem command="history">
+                  <span class="dd-icon">🕐</span> 浏览记录
+                </ElDropdownItem>
+                <ElDropdownItem command="settings">
+                  <span class="dd-icon">⚙️</span> 账号设置
+                </ElDropdownItem>
+                <ElDropdownItem divided command="logout">
+                  <span class="dd-icon">🚪</span> 退出登录
+                </ElDropdownItem>
+              </ElDropdownMenu>
+            </template>
+          </ElDropdown>
         </span>
-        <ElButton
-          v-if="userStore.currentUser"
-          size="small"
-          text
-          class="logout-btn"
-          @click="handleLogout"
-        >
-          退出
-        </ElButton>
         <ElButton v-else size="small" round @click="navigate('create-user')">创建身份</ElButton>
       </div>
 
@@ -137,6 +161,23 @@ function handleLogout() {
               <span class="drawer-item-icon">{{ item.icon }}</span>
               <span class="drawer-item-label">{{ item.label }}</span>
               <ElBadge v-if="item.name === 'message' && unreadCount > 0" :value="unreadCount" />
+              <span class="drawer-item-arrow">→</span>
+            </div>
+            <div class="drawer-divider"></div>
+            <div
+              :class="['drawer-item', { active: isActive('history') }]"
+              @click="navigate('history')"
+            >
+              <span class="drawer-item-icon">🕐</span>
+              <span class="drawer-item-label">浏览记录</span>
+              <span class="drawer-item-arrow">→</span>
+            </div>
+            <div
+              :class="['drawer-item', { active: isActive('settings') }]"
+              @click="navigate('settings')"
+            >
+              <span class="drawer-item-icon">⚙️</span>
+              <span class="drawer-item-label">账号设置</span>
               <span class="drawer-item-arrow">→</span>
             </div>
           </div>
@@ -320,6 +361,36 @@ function handleLogout() {
 .user-badge:hover {
   background: var(--c-bg-hover);
 }
+.user-avatar-dropdown {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+}
+.dropdown-arrow {
+  font-size: 10px;
+  color: var(--c-text-muted);
+  transition: transform var(--transition-fast);
+}
+.user-avatar-dropdown:hover .dropdown-arrow {
+  color: var(--c-primary);
+}
+.dd-icon {
+  margin-right: 6px;
+  font-size: 15px;
+}
+.dd-badge {
+  margin-left: 6px;
+}
+.dd-badge :deep(.el-badge__content) {
+  top: 0;
+  right: 0;
+  font-size: 10px;
+  height: 16px;
+  line-height: 16px;
+  padding: 0 5px;
+  border: none;
+}
 .user-name {
   display: none;
 }
@@ -456,6 +527,11 @@ function handleLogout() {
 .drawer-item-label {
   flex: 1;
   font-size: 15px;
+}
+.drawer-divider {
+  height: 1px;
+  background: var(--c-border-light);
+  margin: 6px 12px;
 }
 .drawer-item-arrow {
   font-size: 14px;

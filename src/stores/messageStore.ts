@@ -80,29 +80,23 @@ export const useMessageStore = defineStore('message', () => {
     })
     currentMessages.value.push(msg.data)
 
-    // 更新会话最后消息
-    const newUnreadCount = (currentConversation.value?.unreadCount || 0) + 1
+    // 更新会话最后消息（自己发的消息不增加未读数）
     await updateConversation(convId, {
       lastMessage: content,
-      unreadCount: newUnreadCount,
       updatedAt: now(),
     })
-
-    // 同时更新本地会话数据（convInList 和 currentConversation 可能是同一引用，只更新一次）
     const convInList = conversations.value.find(c => c.id === convId)
     if (convInList) {
       convInList.lastMessage = content
-      convInList.unreadCount = newUnreadCount
       convInList.updatedAt = now()
     }
     if (currentConversation.value?.id === convId && currentConversation.value !== convInList) {
       currentConversation.value.lastMessage = content
-      currentConversation.value.unreadCount = newUnreadCount
       currentConversation.value.updatedAt = now()
     }
 
-    // 普通文本消息才生成模拟回复
-    if (messageType === 'text' && !senderIdOverride) {
+    // 生成模拟回复（不给自己发消息的人生成回复）
+    if (messageType === 'text' && !senderIdOverride && senderId !== receiverId) {
       const replyContent = getMockReply()
       const reply = await sendMessage({
         conversationId: convId,
@@ -114,6 +108,24 @@ export const useMessageStore = defineStore('message', () => {
         read: false,
       })
       currentMessages.value.push(reply.data)
+
+      // 别人回复的消息才增加未读数
+      const newUnreadCount = (currentConversation.value?.unreadCount || 0) + 1
+      await updateConversation(convId, {
+        lastMessage: replyContent,
+        unreadCount: newUnreadCount,
+        updatedAt: now(),
+      })
+      if (convInList) {
+        convInList.lastMessage = replyContent
+        convInList.unreadCount = newUnreadCount
+        convInList.updatedAt = now()
+      }
+      if (currentConversation.value?.id === convId && currentConversation.value !== convInList) {
+        currentConversation.value.lastMessage = replyContent
+        currentConversation.value.unreadCount = newUnreadCount
+        currentConversation.value.updatedAt = now()
+      }
     }
 
     return true

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
+import { onMounted, ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElCard, ElTabs, ElTabPane, ElTable, ElTableColumn, ElButton, ElTag, ElSelect, ElOption, ElMessage, ElDescriptions, ElDescriptionsItem, ElMessageBox, ElEmpty } from 'element-plus'
 import { useUserStore } from '@/stores/userStore'
@@ -15,6 +15,17 @@ const favoriteStore = useFavoriteStore()
 
 const myItems = ref<Item[]>([])
 const selectedStatusMap = ref<Record<number, string>>({})
+
+const timeGreeting = computed(() => {
+  const hour = new Date().getHours()
+  if (hour < 6) return '夜深了'
+  if (hour < 9) return '早上好'
+  if (hour < 12) return '上午好'
+  if (hour < 14) return '中午好'
+  if (hour < 18) return '下午好'
+  if (hour < 22) return '晚上好'
+  return '夜深了'
+})
 
 onMounted(async () => {
   if (!userStore.currentUser) return
@@ -73,6 +84,7 @@ function goToDetail(id: number) {
 
     <!-- 用户信息 -->
     <div v-if="userStore.currentUser" class="user-profile-card">
+      <p class="profile-greeting">{{ timeGreeting }}，{{ userStore.currentUser.nickname }} 👋</p>
       <div class="profile-avatar-section">
         <span class="profile-avatar">{{ userStore.currentUser.nickname.charAt(0) }}</span>
         <div class="profile-name-section">
@@ -272,5 +284,13 @@ function goToDetail(id: number) {
 .credit-label {
   font-size: 11px;
   opacity: 0.8;
+}
+.profile-greeting {
+  margin: 0 0 16px;
+  font-size: 18px;
+  font-weight: 600;
+  opacity: 0.95;
+  position: relative;
+  z-index: 1;
 }
 </style>

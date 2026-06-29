@@ -26,6 +26,23 @@ onMounted(async () => {
       await itemStore.editItem(id, {
         viewCount: (itemStore.currentItem.viewCount || 0) + 1,
       }).catch(() => {})
+      // 写入浏览记录
+      try {
+        const raw = localStorage.getItem('browseHistory')
+        const list = raw ? JSON.parse(raw) : []
+        const idx = list.findIndex((h: { id: number }) => h.id === id)
+        if (idx !== -1) list.splice(idx, 1)
+        list.unshift({
+          id: itemStore.currentItem.id,
+          title: itemStore.currentItem.title,
+          type: itemStore.currentItem.type,
+          campus: itemStore.currentItem.campus,
+          price: itemStore.currentItem.price,
+          viewedAt: new Date().toISOString(),
+        })
+        if (list.length > 50) list.length = 50
+        localStorage.setItem('browseHistory', JSON.stringify(list))
+      } catch { /* ignore */ }
     }
   }
 })

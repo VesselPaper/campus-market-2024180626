@@ -1,17 +1,16 @@
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
+import { onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { ElEmpty, ElPagination, ElAlert, ElSkeleton, ElButton } from 'element-plus'
+import { ElEmpty, ElAlert, ElSkeleton, ElButton } from 'element-plus'
 import { useItemStore } from '@/stores/itemStore'
 import MarketItemCard from '@/components/MarketItemCard.vue'
 import MarketFilterBar from '@/components/MarketFilterBar.vue'
+import BackToTop from '@/components/BackToTop.vue'
 import type { FilterParams, ItemType } from '@/types'
 
 const route = useRoute()
 const router = useRouter()
 const itemStore = useItemStore()
-const currentPage = ref(1)
-const pageSize = 10
 
 onMounted(async () => {
   const params: FilterParams = {}
@@ -27,7 +26,6 @@ function handleSearch(raw: Record<string, string>) {
   if (raw.status) params.status = raw.status
   if (raw.sortBy) params.sortBy = raw.sortBy
   itemStore.fetchItems(params)
-  currentPage.value = 1
 }
 
 function goToDetail(id: number) {
@@ -36,11 +34,6 @@ function goToDetail(id: number) {
 
 function goToPublish() {
   router.push({ name: 'publish' })
-}
-
-const paginatedItems = () => {
-  const start = (currentPage.value - 1) * pageSize
-  return itemStore.items.slice(start, start + pageSize)
 }
 </script>
 
@@ -76,21 +69,13 @@ const paginatedItems = () => {
     </div>
     <div v-else class="item-list">
       <MarketItemCard
-        v-for="item in paginatedItems()"
+        v-for="item in itemStore.items"
         :key="item.id"
         :item="item"
         @click="goToDetail"
       />
-      <div class="pagination-wrap" v-if="itemStore.items.length > pageSize">
-        <ElPagination
-          v-model:current-page="currentPage"
-          :page-size="pageSize"
-          :total="itemStore.items.length"
-          layout="prev, pager, next"
-          background
-        />
-      </div>
     </div>
+    <BackToTop />
   </div>
 </template>
 
@@ -153,11 +138,4 @@ const paginatedItems = () => {
   animation: fadeIn 0.4s ease both;
 }
 
-.pagination-wrap {
-  display: flex;
-  justify-content: center;
-  margin-top: 24px;
-  padding-top: 20px;
-  border-top: 1px solid var(--c-border-light);
-}
 </style>
