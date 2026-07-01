@@ -1,26 +1,29 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
-import type { Item } from '@/types'
-import { ITEM_TYPES, PLACEHOLDER_IMAGES, AVATAR_COLORS } from '@/utils/constants'
-import { formatRelativeTime } from '@/utils/date'
-import { ElTag, ElCard, ElImage } from 'element-plus'
-import { useUserStore } from '@/stores/userStore'
+import { computed, ref } from 'vue' // 导入 Vue 响应式工具：computed 创建计算属性，ref 创建响应式引用
+import type { Item } from '@/types' // 导入 TypeScript 类型：Item 商品数据接口
+import { ITEM_TYPES, PLACEHOLDER_IMAGES, AVATAR_COLORS } from '@/utils/constants' // 导入常量：商品分类、默认占位图、头像背景色
+import { formatRelativeTime } from '@/utils/date' // 导入工具函数：将时间戳格式化为相对时间（如"3 分钟前"）
+import { ElTag, ElCard, ElImage } from 'element-plus' // 导入 Element Plus UI 组件：标签、卡片、图片
+import { useUserStore } from '@/stores/userStore' // 导入用户状态管理，用于获取发布者信息
 
 const props = defineProps<{
-  item: Item
+  item: Item // 接收父组件传入的商品数据对象
+  visited?: boolean // 是否已浏览过（已浏览的标题变灰，类似淘宝）
 }>()
 
 const emit = defineEmits<{
-  click: [id: number]
+  click: [id: number] // 定义向父组件发出的事件：点击卡片时传递商品 ID
 }>()
 
-const userStore = useUserStore()
+const userStore = useUserStore() // 获取用户 store 实例，用于查找发布者信息
 
 const typeLabel = computed(() => {
+  // 根据商品类型值（如 secondhand）找到对应的中文标签（如"二手交易"）
   return ITEM_TYPES.find(t => t.value === props.item.type)?.label || props.item.type
 })
 
 const tagClass = computed(() => {
+  // 根据商品类型返回对应的 CSS 类名，控制标签颜色样式
   const map: Record<string, string> = {
     secondhand: 'tag-secondhand',
     lostfound: 'tag-lostfound',
@@ -31,6 +34,7 @@ const tagClass = computed(() => {
 })
 
 const displayPrice = computed(() => {
+  // 计算显示的金额：二手显示售价，跑腿显示酬劳，其他类型不显示
   if (props.item.type === 'secondhand' && props.item.price) {
     return `¥${props.item.price}`
   }
@@ -41,6 +45,7 @@ const displayPrice = computed(() => {
 })
 
 const imageSrc = computed(() => {
+  // 取商品第一张图片，没有图片则使用对应类型的默认占位图
   if (props.item.images && props.item.images.length > 0) {
     return props.item.images[0]
   }
@@ -48,6 +53,7 @@ const imageSrc = computed(() => {
 })
 
 const statusConfig = computed(() => {
+  // 根据商品状态（进行中/已完成等）返回对应的显示文本和圆点样式类
   const status = props.item.status
   const map: Record<string, { text: string; dotClass: string }> = {
     '进行中': { text: '进行中', dotClass: 'dot-active' },
@@ -60,24 +66,27 @@ const statusConfig = computed(() => {
 })
 
 const typeEmoji = computed(() => {
+  // 不同类型显示不同 emoji：📦二手 🔍失物 👥拼单 🏃跑腿
   return { secondhand: '📦', lostfound: '🔍', group: '👥', errand: '🏃' }[props.item.type] || '📄'
 })
 
 const hasRealImage = computed(() => {
+  // 判断商品是否有真实上传的图片（用于区分占位图）
   return props.item.images && props.item.images.length > 0
 })
 
-const imageError = ref(false)
-const imageLoaded = ref(false)
+const imageError = ref(false) // 图片加载是否出错
+const imageLoaded = ref(false) // 图片是否加载完成
 
 function onImageError() {
-  imageError.value = true
+  imageError.value = true // 图片加载失败时触发，隐藏原图显示 fallback
 }
 function onImageLoad() {
-  imageLoaded.value = true
+  imageLoaded.value = true // 图片加载成功时触发，显示图片
 }
 
 const publisherInfo = computed(() => {
+  // 从用户列表中查找发布者，生成首字母头像和随机背景色
   const user = userStore.users.find(u => u.id === props.item.publisherId)
   if (!user) return null
   const colorIdx = (user.nickname.charCodeAt(0) + user.nickname.length) % AVATAR_COLORS.length
@@ -89,14 +98,18 @@ const publisherInfo = computed(() => {
 })
 
 function handleClick() {
-  emit('click', props.item.id)
+  emit('click', props.item.id) // 点击卡片时向父组件发送 click 事件，传递商品 ID
 }
 </script>
 
 <template>
+  <!-- 商品卡片容器，hover 时阴影上移，点击跳转至详情页 -->
   <ElCard shadow="hover" class="item-card" @click="handleClick" body-class="card-body">
+    <!-- 商品图片区域，只有存在图片源时才渲染 -->
     <div class="card-image-wrap" v-if="imageSrc">
+      <!-- 图片加载完成前显示的骨架屏闪烁动画 -->
       <div v-if="!imageLoaded && !imageError" class="image-skeleton"></div>
+      <!-- 商品图片，加载完成后淡入显示 -->
       <img
         v-show="!imageError"
         :src="imageSrc"
@@ -106,24 +119,32 @@ function handleClick() {
         @error="onImageError"
         alt=""
       />
+      <!-- 图片加载失败时显示的类型 emoji 占位 -->
       <div v-if="imageError" class="image-fallback">
         <span class="fallback-emoji">{{ typeEmoji }}</span>
       </div>
+      <!-- 图片右上角的商品类型小标记 -->
       <span class="type-badge">{{ typeEmoji }}</span>
     </div>
+    <!-- 卡片右侧文字信息区域 -->
     <div class="card-info">
+      <!-- 标题行：商品标题 + 类型标签 -->
       <div class="card-top">
-        <h3 class="card-title">{{ item.title }}</h3>
+        <h3 class="card-title" :class="{ visited }">{{ item.title }}</h3>
         <span :class="['tag', tagClass]">{{ typeLabel }}</span>
       </div>
+      <!-- 商品描述，最多显示两行，超出省略 -->
       <p class="card-desc">{{ item.description }}</p>
+      <!-- 元信息行：价格、校区、发布时间 -->
       <div class="card-meta-row">
         <span class="card-price" v-if="displayPrice">{{ displayPrice }}</span>
         <span class="card-campus">{{ item.campus }}</span>
         <span class="card-time">{{ formatRelativeTime(item.createdAt) }}</span>
       </div>
+      <!-- 底部栏：发布者信息 + 状态 + 统计数据 -->
       <div class="card-footer">
         <div class="card-footer-left">
+          <!-- 发布者头像首字母和昵称 -->
           <div v-if="publisherInfo" class="card-publisher">
             <span
               class="publisher-avatar"
@@ -132,6 +153,7 @@ function handleClick() {
             <span class="publisher-name">{{ publisherInfo.nickname }}</span>
           </div>
         </div>
+        <!-- 右侧：状态圆点 + 浏览/收藏数 -->
         <div class="card-footer-right">
           <span :class="['status-dot', statusConfig.dotClass]"></span>
           <span class="status-text">{{ statusConfig.text }}</span>
@@ -241,6 +263,10 @@ function handleClick() {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  transition: color var(--transition-base);
+}
+.card-title.visited {
+  color: var(--c-text-muted);
 }
 
 /* ── Tag ── */

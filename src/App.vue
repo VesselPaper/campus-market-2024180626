@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, ref, computed } from 'vue'
+import { onMounted, ref, computed, nextTick } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { ElMenu, ElMenuItem, ElContainer, ElHeader, ElMain, ElFooter, ElButton, ElDropdown, ElDropdownMenu, ElDropdownItem, ElBadge } from 'element-plus'
 import { useUserStore } from '@/stores/userStore'
@@ -11,6 +11,7 @@ const userStore = useUserStore()
 const messageStore = useMessageStore()
 const ready = ref(false)
 
+// 导航栏菜单项：路由名称、显示文字和图标
 const navItems = [
   { name: 'home', label: '首页', icon: '🏠' },
   { name: 'market-list', label: '集市', icon: '🛒' },
@@ -19,33 +20,41 @@ const navItems = [
   { name: 'dashboard', label: '看板', icon: '📊' },
 ]
 
+// 计算当前路由是否与指定名称匹配，用于高亮激活的导航项
 const isActive = computed(() => (name: string) => route.name === name)
 
+// 未读消息数量（从 messageStore 中获取）
 const unreadCount = computed(() => messageStore.getUnreadCount())
 
+// 控制移动端抽屉菜单的显示/隐藏
 const showMobileMenu = ref(false)
 
+// 页面挂载时尝试恢复用户登录状态
 onMounted(async () => {
   const hasSession = await userStore.restoreSession()
   if (userStore.currentUser) {
     await messageStore.fetchConversations()
   }
   ready.value = true
-  if (!hasSession && route.name !== 'create-user') {
-    router.push({ name: 'create-user' })
+  if (!hasSession && route.name !== 'login' && route.name !== 'register') {
+    router.push({ name: 'login' })
   }
 })
 
+// 导航到指定路由页面，同时关闭移动端菜单
 function navigate(name: string) {
   showMobileMenu.value = false
   router.push({ name })
 }
 
+// 退出登录：清除用户数据并跳转到创建身份页
 function handleLogout() {
   userStore.clearUser()
-  router.push({ name: 'create-user' })
+  // 等 Vue 完成响应式更新后再跳转，避免 Pinia 清理与导航冲突
+  nextTick(() => router.replace({ name: 'login' }))
 }
 
+// 处理头像下拉菜单的命令：退出或跳转页面
 function handleAvatarCommand(cmd: string) {
   if (cmd === 'logout') {
     handleLogout()
@@ -63,7 +72,10 @@ function handleAvatarCommand(cmd: string) {
     </div>
   </div>
   <ElContainer v-else class="app-container">
+    <!-- 登录页不显示导航栏 -->
+    <template v-if="route.name !== 'login' && route.name !== 'register'">
     <ElHeader class="app-header">
+      <!-- 左侧品牌 Logo，点击回到首页 -->
       <div class="header-left">
         <div class="brand" @click="navigate('home')">
           <span class="brand-icon">🛍️</span>
@@ -90,12 +102,14 @@ function handleAvatarCommand(cmd: string) {
         </ElMenuItem>
       </ElMenu>
 
-      <!-- 桌面端操作区 -->
+      <!-- 桌面端操作区：发布按钮、用户头像下拉菜单 -->
       <div class="header-right">
+        <!-- 发布新信息按钮 -->
         <ElButton class="publish-btn" round @click="navigate('publish')">
           <span class="publish-btn-icon">✚</span>
           <span>发布</span>
         </ElButton>
+        <!-- 已登录：显示用户头像下拉菜单 -->
         <span v-if="userStore.currentUser" class="user-badge">
           <ElDropdown trigger="hover" @command="handleAvatarCommand">
             <span class="user-avatar-dropdown">
@@ -125,10 +139,11 @@ function handleAvatarCommand(cmd: string) {
             </template>
           </ElDropdown>
         </span>
-        <ElButton v-else size="small" round @click="navigate('create-user')">创建身份</ElButton>
+        <!-- 未登录：显示创建身份按钮 -->
+        <ElButton v-else size="small" round @click="navigate('login')">登录</ElButton>
       </div>
 
-      <!-- 移动端导航 -->
+      <!-- 移动端导航：汉堡菜单按钮，切换抽屉 -->
       <div class="mobile-nav">
         <ElButton class="mobile-menu-btn" @click="showMobileMenu = true">
           <span class="menu-dots">☰</span>
@@ -136,14 +151,16 @@ function handleAvatarCommand(cmd: string) {
       </div>
     </ElHeader>
 
-    <!-- 移动端抽屉菜单 -->
+    <!-- 移动端抽屉菜单：从左侧滑出的导航面板 -->
     <Transition name="drawer">
       <div v-if="showMobileMenu" class="mobile-drawer-overlay" @click="showMobileMenu = false">
         <div class="mobile-drawer" @click.stop>
+          <!-- 抽屉顶部：品牌名和关闭按钮 -->
           <div class="drawer-header">
             <span class="drawer-brand">🛍️ 轻集市</span>
             <ElButton class="drawer-close" text @click="showMobileMenu = false">✕</ElButton>
           </div>
+          <!-- 已登录时显示用户头像和基本信息 -->
           <div class="drawer-user" v-if="userStore.currentUser">
             <span class="drawer-avatar">{{ userStore.currentUser.nickname.charAt(0) }}</span>
             <div class="drawer-user-info">
@@ -151,6 +168,7 @@ function handleAvatarCommand(cmd: string) {
               <span class="drawer-subtitle">{{ userStore.currentUser.campus }} · {{ userStore.currentUser.college }}</span>
             </div>
           </div>
+          <!-- 抽屉导航菜单：主菜单项 -->
           <div class="drawer-nav">
             <div
               v-for="item in navItems"
@@ -163,7 +181,9 @@ function handleAvatarCommand(cmd: string) {
               <ElBadge v-if="item.name === 'message' && unreadCount > 0" :value="unreadCount" />
               <span class="drawer-item-arrow">→</span>
             </div>
+            <!-- 分隔线 -->
             <div class="drawer-divider"></div>
+            <!-- 辅助菜单项：浏览记录和账号设置 -->
             <div
               :class="['drawer-item', { active: isActive('history') }]"
               @click="navigate('history')"
@@ -181,6 +201,7 @@ function handleAvatarCommand(cmd: string) {
               <span class="drawer-item-arrow">→</span>
             </div>
           </div>
+          <!-- 抽屉底部：发布新信息和退出登录 -->
           <div class="drawer-publish">
             <ElButton type="primary" class="drawer-publish-btn" @click="navigate('publish')">
               ✚ 发布新信息
@@ -195,7 +216,7 @@ function handleAvatarCommand(cmd: string) {
       </div>
     </Transition>
 
-    <!-- 移动端浮动发布按钮 -->
+    <!-- 移动端浮动发布按钮：固定在右下角，方便快速发布 -->
     <ElButton
       v-if="userStore.currentUser && route.name !== 'publish'"
       class="mobile-fab"
@@ -205,16 +226,15 @@ function handleAvatarCommand(cmd: string) {
     >
       ✚
     </ElButton>
+    </template>
 
     <ElMain class="app-main">
-      <RouterView v-slot="{ Component }">
-        <transition name="page-fade" mode="out-in">
-          <component :is="Component" />
-        </transition>
-      </RouterView>
+      <!-- 页面主体区域：根据路由动态渲染对应的页面组件 -->
+      <RouterView />
     </ElMain>
 
-    <ElFooter class="app-footer">
+    <!-- 页脚：显示项目名称 -->
+    <ElFooter v-if="route.name !== 'login' && route.name !== 'register'" class="app-footer">
       <div class="footer-inner">
         <span>校园轻集市 · 前端工程实践项目</span>
         <span class="footer-heart">❤</span>

@@ -1,11 +1,12 @@
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted, computed } from 'vue'
-import { useRouter } from 'vue-router'
-import { useItemStore } from '@/stores/itemStore'
-import { getNotices } from '@/api/noticeApi'
-import { calcHotItems } from '@/utils/statistics'
-import type { Notice, Item } from '@/types'
+import { ref, onMounted, onUnmounted, watch } from 'vue' // 导入 Vue 工具：响应式引用、生命周期钩子、watch
+import { useRouter } from 'vue-router' // 导入 Vue Router，用于轮播图点击跳转
+import { useItemStore } from '@/stores/itemStore' // 导入商品状态管理 store，获取商品列表
+import { getNotices } from '@/api/noticeApi' // 导入公告 API 请求函数
+import { calcHotItems } from '@/utils/statistics' // 导入热门商品计算工具（按浏览量排序）
+import type { Notice, Item } from '@/types' // 导入 TypeScript 类型：公告和商品数据接口
 
+// 定义轮播项的数据结构：标题、描述、标签、颜色、渐变背景、跳转链接
 interface Slide {
   id: number | string
   title: string
@@ -16,14 +17,15 @@ interface Slide {
   link?: { name: string; params?: Record<string, unknown> }
 }
 
-const router = useRouter()
-const itemStore = useItemStore()
+const router = useRouter() // 获取路由实例，用于跳转到详情页
+const itemStore = useItemStore() // 获取商品 store 实例
 
-const slides = ref<Slide[]>([])
-const current = ref(0)
-let timer: ReturnType<typeof setInterval> | null = null
-const paused = ref(false)
+const slides = ref<Slide[]>([]) // 轮播幻灯片列表
+const current = ref(0) // 当前显示的幻灯片索引
+let timer: ReturnType<typeof setInterval> | null = null // 自动轮播定时器
+const paused = ref(false) // 鼠标悬停时暂停自动轮播
 
+// 不同商品/公告类型对应的标签颜色和渐变背景
 const typeStyles: Record<string, { tagColor: string; bgGradient: string }> = {
   secondhand: { tagColor: '#FF6B35', bgGradient: 'linear-gradient(135deg, #FF6B35, #FF8F65)' },
   lostfound: { tagColor: '#FDCB6E', bgGradient: 'linear-gradient(135deg, #FDCB6E, #FFE08A)' },
@@ -33,6 +35,7 @@ const typeStyles: Record<string, { tagColor: string; bgGradient: string }> = {
   notice: { tagColor: '#2D3436', bgGradient: 'linear-gradient(135deg, #636E72, #B2BEC3)' },
 }
 
+// 不同类型对应的中文标签
 const typeLabels: Record<string, string> = {
   secondhand: '二手交易',
   lostfound: '失物招领',
@@ -43,7 +46,7 @@ const typeLabels: Record<string, string> = {
 }
 
 async function loadSlides() {
-  // 推荐商品（按浏览量排序）
+  // 从商品列表中取浏览量最高的作为推荐幻灯片
   const hotItems = calcHotItems(itemStore.items)
   const itemSlides: Slide[] = hotItems.map((item: Item) => ({
     id: `item-${item.id}`,
@@ -55,7 +58,7 @@ async function loadSlides() {
     link: { name: 'item-detail', params: { id: item.id } },
   }))
 
-  // 平台公告
+  // 从 API 获取平台公告并转为幻灯片格式
   let noticeSlides: Slide[] = []
   try {
     const res = await getNotices()
@@ -68,13 +71,14 @@ async function loadSlides() {
       bgGradient: typeStyles[n.type]?.bgGradient || typeStyles.notice.bgGradient,
     }))
   } catch {
-    // 公告加载失败不影响推荐展示
+    // 公告加载失败时静默处理，不影响推荐商品展示
   }
 
-  slides.value = [...itemSlides, ...noticeSlides]
+  slides.value = [...itemSlides, ...noticeSlides] // 合并推荐商品和公告
 }
 
 function startTimer() {
+  // 启动自动轮播定时器，每 4 秒切换到下一张
   stopTimer()
   timer = setInterval(() => {
     if (!paused.value && slides.value.length > 0) {
@@ -84,6 +88,7 @@ function startTimer() {
 }
 
 function stopTimer() {
+  // 停止自动轮播定时器
   if (timer) {
     clearInterval(timer)
     timer = null
@@ -91,31 +96,50 @@ function stopTimer() {
 }
 
 function goToSlide(index: number) {
+  // 点击导航圆点跳转到指定幻灯片
   current.value = index
 }
 
+function prevSlide() {
+  current.value = (current.value - 1 + slides.value.length) % slides.value.length
+}
+
+function nextSlide() {
+  current.value = (current.value + 1) % slides.value.length
+}
+
 function handleSlideClick(slide: Slide) {
+  // 点击幻灯片时跳转到对应的详情页
   if (slide.link) {
     router.push(slide.link)
   }
 }
 
-onMounted(async () => {
-  await loadSlides()
-  startTimer()
+onMounted(() => {
+  loadSlides() // 组件挂载时加载轮播数据
+  startTimer() // 启动自动轮播
 })
 
+// 商品数据加载完成后重新生成轮播（首页首次加载时 items 可能还没到）
+watch(() => itemStore.items, () => {
+  if (itemStore.items.length > 0) {
+    loadSlides()
+  }
+}, { once: true })
+
 onUnmounted(() => {
-  stopTimer()
+  stopTimer() // 组件销毁时停止定时器
 })
 </script>
 
 <template>
+  <!-- 轮播容器，鼠标移入暂停自动播放，移出恢复 -->
   <div
     class="banner-carousel"
     @mouseenter="paused = true"
     @mouseleave="paused = false"
   >
+    <!-- 轮播轨道，遍历渲染所有幻灯片 -->
     <div class="carousel-track" v-if="slides.length > 0">
       <div
         v-for="(slide, i) in slides"
@@ -126,6 +150,7 @@ onUnmounted(() => {
         @click="handleSlideClick(slide)"
       >
         <div class="slide-overlay"></div>
+        <!-- 幻灯片内容：类型标签、标题、描述、查看详情链接 -->
         <div class="slide-content">
           <span class="slide-tag" :style="{ background: slide.tagColor }">{{ slide.tag }}</span>
           <h3 class="slide-title">{{ slide.title }}</h3>
@@ -135,7 +160,15 @@ onUnmounted(() => {
       </div>
     </div>
 
-    <!-- 导航点 -->
+    <!-- 左右切换箭头 -->
+    <button v-if="slides.length > 1" class="carousel-arrow arrow-left" @click.stop="prevSlide">
+      ‹
+    </button>
+    <button v-if="slides.length > 1" class="carousel-arrow arrow-right" @click.stop="nextSlide">
+      ›
+    </button>
+
+    <!-- 底部导航圆点，点击可跳转到对应的幻灯片 -->
     <div class="carousel-dots" v-if="slides.length > 1">
       <button
         v-for="(_, i) in slides"
@@ -146,7 +179,7 @@ onUnmounted(() => {
       />
     </div>
 
-    <!-- 空状态 -->
+    <!-- 没有数据时显示空状态提示 -->
     <div v-if="slides.length === 0" class="carousel-empty">
       <span class="empty-icon">📢</span>
       <span>暂无推荐内容</span>
@@ -244,6 +277,39 @@ onUnmounted(() => {
 }
 .slide-action:hover {
   opacity: 1;
+}
+
+/* ── 左右箭头 ── */
+.carousel-arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 3;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(255,255,255,0.25);
+  color: #fff;
+  font-size: 28px;
+  line-height: 36px;
+  text-align: center;
+  cursor: pointer;
+  transition: all var(--transition-base);
+  opacity: 0;
+  padding: 0;
+}
+.banner-carousel:hover .carousel-arrow {
+  opacity: 1;
+}
+.carousel-arrow:hover {
+  background: rgba(255,255,255,0.5);
+}
+.arrow-left {
+  left: 12px;
+}
+.arrow-right {
+  right: 12px;
 }
 
 .carousel-dots {

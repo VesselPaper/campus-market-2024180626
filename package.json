@@ -6,7 +6,9 @@
   "packageManager": "npm@9.8.0",
   "scripts": {
     "dev": "vite --port 5173",
-    "mock": "json-server --watch db.json --port 3000",
+    "mock": "node server.mjs",
+    "mock:watch": "node --watch server.mjs",
+    "seed": "node scripts/seed.mjs",
     "build": "vite build",
     "preview": "vite preview",
     "start": "echo 请在两个终端分别运行: npm run mock 和 npm run dev"

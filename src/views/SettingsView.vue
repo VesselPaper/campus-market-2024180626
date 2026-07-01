@@ -1,21 +1,37 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, reactive } from 'vue'
 import { useRouter } from 'vue-router'
-import { ElCard, ElForm, ElFormItem, ElInput, ElButton, ElMessage, ElMessageBox } from 'element-plus'
+import { ElCard, ElForm, ElFormItem, ElInput, ElSelect, ElOption, ElButton, ElMessage, ElMessageBox } from 'element-plus'
 import { useUserStore } from '@/stores/userStore'
+import { CAMPUS_LIST, COLLEGE_LIST } from '@/utils/constants'
 
 const router = useRouter()
 const userStore = useUserStore()
 
-const form = ref({
+const form = reactive({
   nickname: userStore.currentUser?.nickname || '',
   college: userStore.currentUser?.college || '',
   campus: userStore.currentUser?.campus || '',
   role: userStore.currentUser?.role || '',
 })
+const saving = ref(false)
 
-function handleSave() {
-  ElMessage.success('设置已保存（演示功能）')
+async function handleSave() {
+  if (!userStore.currentUser) return
+  saving.value = true
+  try {
+    await userStore.updateProfile({
+      nickname: form.nickname,
+      college: form.college,
+      campus: form.campus,
+      role: form.role,
+    })
+    ElMessage.success('设置已保存')
+  } catch {
+    ElMessage.error('保存失败')
+  } finally {
+    saving.value = false
+  }
 }
 
 async function handleDeleteAccount() {
@@ -27,7 +43,7 @@ async function handleDeleteAccount() {
     })
     userStore.clearUser()
     ElMessage.success('账号已注销')
-    router.push({ name: 'create-user' })
+    router.push({ name: 'register' })
   } catch {
     // cancelled
   }
@@ -44,16 +60,20 @@ async function handleDeleteAccount() {
           <ElInput v-model="form.nickname" placeholder="输入昵称" />
         </ElFormItem>
         <ElFormItem label="学院">
-          <ElInput v-model="form.college" placeholder="输入学院" />
+          <ElSelect v-model="form.college" placeholder="请选择学院" class="full-width">
+            <ElOption v-for="c in COLLEGE_LIST" :key="c" :label="c" :value="c" />
+          </ElSelect>
         </ElFormItem>
         <ElFormItem label="校区">
-          <ElInput v-model="form.campus" placeholder="输入校区" />
+          <ElSelect v-model="form.campus" placeholder="选择校区" class="full-width">
+            <ElOption v-for="c in CAMPUS_LIST" :key="c" :label="c" :value="c" />
+          </ElSelect>
         </ElFormItem>
         <ElFormItem label="身份">
           <ElInput v-model="form.role" placeholder="如：大二学生" />
         </ElFormItem>
         <ElFormItem>
-          <ElButton type="primary" @click="handleSave">保存设置</ElButton>
+          <ElButton type="primary" :loading="saving" @click="handleSave">保存设置</ElButton>
         </ElFormItem>
       </ElForm>
     </ElCard>
@@ -83,6 +103,9 @@ async function handleDeleteAccount() {
 }
 .settings-form {
   max-width: 480px;
+}
+.full-width {
+  width: 100%;
 }
 .danger-card {
   border-color: #f56c6c44 !important;

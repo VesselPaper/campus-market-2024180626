@@ -1,7 +1,13 @@
+// ============================================
+// 常量配置 — 项目里到处用的固定数据都放这里
+// 想改分类名、校区名、排序选项等，改这里就行
+// ============================================
 import type { ItemType } from '@/types'
 
+// JSON Server 后端地址（改了端口就来改这里）
 export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000'
 
+// 四种业务分类（首页"逛逛集市"就展示这些）
 export const ITEM_TYPES: { label: string; value: ItemType }[] = [
   { label: '二手交易', value: 'secondhand' },
   { label: '失物招领', value: 'lostfound' },
@@ -9,14 +15,19 @@ export const ITEM_TYPES: { label: string; value: ItemType }[] = [
   { label: '跑腿委托', value: 'errand' },
 ]
 
+// 校区列表（创建身份/筛选时用）
 export const CAMPUS_LIST = ['成龙校区', '狮子山校区']
 
+// 学院列表（创建身份时选）
 export const COLLEGE_LIST = ['计算机学院', '数学学院', '物理学院', '外国语学院', '经管学院', '文学院', '艺术学院', '法学院']
 
+// 身份列表
 export const ROLE_LIST = ['大一学生', '大二学生', '大三学生', '大四学生', '研究生']
 
+// 所有可能的状态
 export const ITEM_STATUSES = ['进行中', '已完成', '已关闭', '已找回', '已认领']
 
+// 状态筛选选项（集市列表页顶部的下拉框用）
 export const ITEM_STATUS_OPTIONS: { label: string; value: string }[] = [
   { label: '全部状态', value: '' },
   { label: '进行中', value: '进行中' },
@@ -26,6 +37,7 @@ export const ITEM_STATUS_OPTIONS: { label: string; value: string }[] = [
   { label: '已认领', value: '已认领' },
 ]
 
+// 排序选项
 export const SORT_OPTIONS: { label: string; value: string }[] = [
   { label: '最新发布', value: 'createdAt' },
   { label: '最多浏览', value: 'viewCount' },
@@ -33,6 +45,7 @@ export const SORT_OPTIONS: { label: string; value: string }[] = [
   { label: '价格从高到低', value: 'price_desc' },
 ]
 
+// 各类型的占位图（当商品没有图片时显示）
 export const PLACEHOLDER_IMAGES: Record<ItemType, string> = {
   secondhand: 'https://placehold.co/400x300/FFF0E8/FF6B35?text=Secondhand',
   lostfound: 'https://placehold.co/400x300/FFF8E0/FDCB6E?text=Lost+Found',
@@ -40,8 +53,18 @@ export const PLACEHOLDER_IMAGES: Record<ItemType, string> = {
   errand: 'https://placehold.co/400x300/E6F7FC/00B4D8?text=Errand',
 }
 
+// 头像备用颜色列表
 export const AVATAR_COLORS = ['#FF6B35', '#00B4D8', '#00B894', '#FDCB6E', '#74B9FF', '#FF6B6B']
 
+// 将相对路径的图片转为完整的 URL（加上后端地址）
+// 上传的图片存在后端 public/ 下，必须通过 API 服务器访问
+export function imageUrl(path: string | undefined | null): string {
+  if (!path) return ''
+  if (path.startsWith('http://') || path.startsWith('https://')) return path
+  return `${API_BASE_URL}${path}`
+}
+
+// 根据昵称生成头像URL（用昵称首字和颜色组合）
 export function getAvatarUrl(nickname: string): string {
   const idx = (nickname.charCodeAt(0) + nickname.length) % AVATAR_COLORS.length
   const color = AVATAR_COLORS[idx]
@@ -49,6 +72,7 @@ export function getAvatarUrl(nickname: string): string {
   return `https://placehold.co/80x80/${color.slice(1)}/FFFFFF?text=${encodeURIComponent(initial)}`
 }
 
+// 安全提醒内容（首页底部展示）
 export const SAFETY_NOTICES = [
   { title: '选择公共地点交易', content: '建议选择食堂、图书馆、教学楼大厅等公共场所进行线下交易，避免在偏僻或私人场所见面。' },
   { title: '贵重物品注意验真', content: '购买笔记本电脑、手机、相机等贵重物品时，建议当场验货，确认功能正常、配件齐全。' },

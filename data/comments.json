@@ -1,0 +1,30 @@
+[
+  {
+    "itemId": 1,
+    "userId": 1,
+    "content": "test",
+    "createdAt": "2026-07-01 12:00:00",
+    "id": 1
+  },
+  {
+    "itemId": 1,
+    "userId": 5,
+    "content": "大家好啊",
+    "createdAt": "2026-07-01 13:26:15",
+    "id": 2
+  },
+  {
+    "itemId": 8,
+    "userId": 5,
+    "content": "包吃包住吗",
+    "createdAt": "2026-07-01 13:26:51",
+    "id": 3
+  },
+  {
+    "itemId": 13,
+    "userId": 5,
+    "content": "有需要的可以讨论哦",
+    "createdAt": "2026-07-01 13:27:27",
+    "id": 4
+  }
+]

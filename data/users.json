@@ -1,0 +1,57 @@
+[
+  {
+    "id": 1,
+    "account": "zhangsan",
+    "password": "123456",
+    "nickname": "张三",
+    "college": "计算机学院",
+    "campus": "成龙校区",
+    "role": "大二学生",
+    "creditScore": 85,
+    "avatar": "https://placehold.co/80x80/FF6B35/FFFFFF?text=ZS"
+  },
+  {
+    "id": 2,
+    "account": "lisi",
+    "password": "123456",
+    "nickname": "李四",
+    "college": "物理学院",
+    "campus": "狮子山校区",
+    "role": "大三学生",
+    "creditScore": 90,
+    "avatar": "https://placehold.co/80x80/00B4D8/FFFFFF?text=LS"
+  },
+  {
+    "id": 3,
+    "account": "wangwu",
+    "password": "123456",
+    "nickname": "王五",
+    "college": "计算机学院",
+    "campus": "成龙校区",
+    "role": "研究生",
+    "creditScore": 78,
+    "avatar": "https://placehold.co/80x80/00B894/FFFFFF?text=WW"
+  },
+  {
+    "id": 4,
+    "account": "zhaoliu",
+    "password": "123456",
+    "nickname": "赵六",
+    "college": "经管学院",
+    "campus": "狮子山校区",
+    "role": "大二学生",
+    "creditScore": 82,
+    "avatar": "https://placehold.co/80x80/FDCB6E/FFFFFF?text=ZL"
+  },
+  {
+    "account": "zhichuan",
+    "password": "123456",
+    "nickname": "纸船",
+    "college": "计算机学院",
+    "campus": "成龙校区",
+    "role": "大二学生",
+    "creditScore": 80,
+    "avatar": "",
+    "id": 5
+  }
+]

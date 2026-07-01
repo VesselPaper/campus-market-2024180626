@@ -1,0 +1,56 @@
+[
+  {
+    "id": 1,
+    "itemId": 1,
+    "buyerId": 2,
+    "publisherId": 1,
+    "lastMessage": "同意一下",
+    "unreadCount": 0,
+    "updatedAt": "2026-07-01 11:39:38"
+  },
+  {
+    "id": 3,
+    "itemId": 11,
+    "buyerId": 4,
+    "publisherId": 1,
+    "lastMessage": "好吧",
+    "unreadCount": 0,
+    "updatedAt": "2026-07-01 11:32:13"
+  },
+  {
+    "itemId": 2,
+    "buyerId": 4,
+    "publisherId": 2,
+    "lastMessage": "好，大概900能接受吗",
+    "unreadCount": 0,
+    "updatedAt": "2026-07-01 11:35:25",
+    "id": 4
+  },
+  {
+    "itemId": 2,
+    "buyerId": 2,
+    "publisherId": 2,
+    "lastMessage": "？",
+    "unreadCount": 0,
+    "updatedAt": "2026-07-01 11:38:46",
+    "id": 6
+  },
+  {
+    "itemId": 8,
+    "buyerId": 2,
+    "publisherId": 3,
+    "lastMessage": "",
+    "unreadCount": 0,
+    "updatedAt": "2026-07-01 11:57:48",
+    "id": 7
+  },
+  {
+    "itemId": 19,
+    "buyerId": 5,
+    "publisherId": 2,
+    "lastMessage": "我对这件商品出价 ¥122，可以吗？",
+    "unreadCount": 0,
+    "updatedAt": "2026-07-01 13:51:32",
+    "id": 8
+  }
+]

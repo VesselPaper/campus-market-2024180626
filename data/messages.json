@@ -1,0 +1,252 @@
+[
+  {
+    "id": 1,
+    "conversationId": 1,
+    "senderId": 2,
+    "receiverId": 1,
+    "content": "你好，请问高数教材还在吗？",
+    "messageType": "text",
+    "createdAt": "2026-06-21 10:00:00",
+    "read": true
+  },
+  {
+    "id": 2,
+    "conversationId": 1,
+    "senderId": 1,
+    "receiverId": 2,
+    "content": "在的，下午有时间来图书馆门口看吗？",
+    "messageType": "text",
+    "createdAt": "2026-06-21 10:05:00",
+    "read": true
+  },
+  {
+    "id": 3,
+    "conversationId": 1,
+    "senderId": 2,
+    "receiverId": 1,
+    "content": "好的，下午3点图书馆门口见。",
+    "messageType": "text",
+    "createdAt": "2026-06-21 10:10:00",
+    "read": true
+  },
+  {
+    "id": 4,
+    "conversationId": 1,
+    "senderId": 1,
+    "receiverId": 2,
+    "content": "好的，谢谢！",
+    "messageType": "text",
+    "createdAt": "2026-06-21 10:15:00",
+    "read": true
+  },
+  {
+    "id": 5,
+    "conversationId": 1,
+    "senderId": 1,
+    "receiverId": 2,
+    "content": "奶茶拼单还差人吗？我想一起拼。",
+    "messageType": "text",
+    "createdAt": "2026-06-24 15:00:00",
+    "read": true
+  },
+  {
+    "id": 6,
+    "conversationId": 1,
+    "senderId": 2,
+    "receiverId": 1,
+    "content": "还差一个人，你要加吗？",
+    "messageType": "text",
+    "createdAt": "2026-06-24 15:05:00",
+    "read": true
+  },
+  {
+    "id": 7,
+    "conversationId": 1,
+    "senderId": 1,
+    "receiverId": 2,
+    "content": "好的，那我加你微信。",
+    "messageType": "text",
+    "createdAt": "2026-06-24 15:10:00",
+    "read": true
+  },
+  {
+    "id": 8,
+    "conversationId": 3,
+    "senderId": 4,
+    "receiverId": 1,
+    "content": "西瓜还有吗？我想拼一个",
+    "messageType": "text",
+    "createdAt": "2026-06-25 09:50:00",
+    "read": true
+  },
+  {
+    "id": 9,
+    "conversationId": 3,
+    "senderId": 1,
+    "receiverId": 4,
+    "content": "有的！现在已经有3个人了，还差1个。你要加吗？",
+    "messageType": "text",
+    "createdAt": "2026-06-25 10:00:00",
+    "read": false
+  },
+  {
+    "conversationId": 3,
+    "senderId": 1,
+    "receiverId": 4,
+    "content": "还要加吗",
+    "messageType": "text",
+    "createdAt": "2026-07-01 11:31:26",
+    "read": false,
+    "id": 10
+  },
+  {
+    "conversationId": 1,
+    "senderId": 1,
+    "receiverId": 2,
+    "content": "把微信加过来",
+    "messageType": "text",
+    "createdAt": "2026-07-01 11:31:37",
+    "read": false,
+    "id": 11
+  },
+  {
+    "conversationId": 3,
+    "senderId": 1,
+    "receiverId": 4,
+    "content": "我们人满了，不用了",
+    "messageType": "text",
+    "createdAt": "2026-07-01 11:31:46",
+    "read": false,
+    "id": 12
+  },
+  {
+    "conversationId": 3,
+    "senderId": 4,
+    "receiverId": 1,
+    "content": "好吧",
+    "messageType": "text",
+    "createdAt": "2026-07-01 11:32:13",
+    "read": false,
+    "id": 13
+  },
+  {
+    "conversationId": 4,
+    "senderId": 4,
+    "receiverId": 2,
+    "content": "我想买电动车",
+    "messageType": "text",
+    "createdAt": "2026-07-01 11:34:45",
+    "read": false,
+    "id": 14
+  },
+  {
+    "conversationId": 4,
+    "senderId": 2,
+    "receiverId": 4,
+    "content": "好，大概900能接受吗",
+    "messageType": "text",
+    "createdAt": "2026-07-01 11:35:25",
+    "read": false,
+    "id": 15
+  },
+  {
+    "conversationId": 1,
+    "senderId": 2,
+    "receiverId": 1,
+    "content": "162738294920",
+    "messageType": "text",
+    "createdAt": "2026-07-01 11:37:45",
+    "read": false,
+    "id": 16
+  },
+  {
+    "conversationId": 1,
+    "senderId": 2,
+    "receiverId": 1,
+    "content": "加好了可以给我说",
+    "messageType": "text",
+    "createdAt": "2026-07-01 11:37:51",
+    "read": false,
+    "id": 17
+  },
+  {
+    "conversationId": 6,
+    "senderId": 2,
+    "receiverId": 2,
+    "content": "？",
+    "messageType": "text",
+    "createdAt": "2026-07-01 11:38:46",
+    "read": false,
+    "id": 18
+  },
+  {
+    "conversationId": 1,
+    "senderId": 1,
+    "receiverId": 2,
+    "content": "加好了",
+    "messageType": "text",
+    "createdAt": "2026-07-01 11:39:32",
+    "read": false,
+    "id": 19
+  },
+  {
+    "conversationId": 1,
+    "senderId": 1,
+    "receiverId": 2,
+    "content": "同意一下",
+    "messageType": "text",
+    "createdAt": "2026-07-01 11:39:38",
+    "read": false,
+    "id": 20
+  },
+  {
+    "conversationId": 8,
+    "senderId": 5,
+    "receiverId": 2,
+    "content": "500怎么样",
+    "messageType": "text",
+    "createdAt": "2026-07-01 13:49:41",
+    "read": false,
+    "id": 21
+  },
+  {
+    "conversationId": 8,
+    "senderId": 2,
+    "receiverId": 5,
+    "content": "可以",
+    "messageType": "text",
+    "createdAt": "2026-07-01 13:50:43",
+    "read": false,
+    "id": 22
+  },
+  {
+    "conversationId": 8,
+    "senderId": 2,
+    "receiverId": 5,
+    "content": "我对这件商品出价 ¥34，可以吗？",
+    "messageType": "bargain",
+    "createdAt": "2026-07-01 13:50:58",
+    "read": false,
+    "id": 23
+  },
+  {
+    "conversationId": 8,
+    "senderId": 2,
+    "receiverId": 5,
+    "content": "我对这件商品出价 ¥56，可以吗？",
+    "messageType": "bargain",
+    "createdAt": "2026-07-01 13:51:01",
+    "read": false,
+    "id": 24
+  },
+  {
+    "conversationId": 8,
+    "senderId": 2,
+    "receiverId": 5,
+    "content": "我对这件商品出价 ¥122，可以吗？",
+    "messageType": "bargain",
+    "createdAt": "2026-07-01 13:51:32",
+    "read": false,
+    "id": 25
+  }
+]

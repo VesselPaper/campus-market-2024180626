@@ -1,16 +1,19 @@
 <script setup lang="ts">
-import { ElCard, ElTag, ElCollapse, ElCollapseItem } from 'element-plus'
-import { SAFETY_NOTICES } from '@/utils/constants'
+import { ElCard, ElTag, ElCollapse, ElCollapseItem } from 'element-plus' // 导入 Element Plus 组件：卡片、标签、折叠面板
+import { SAFETY_NOTICES } from '@/utils/constants' // 导入安全交易提醒数据常量（标题和内容列表）
 </script>
 
 <template>
+  <!-- 安全提醒卡片容器，使用暖色渐变背景 -->
   <ElCard class="safety-notice" body-class="safety-body">
+    <!-- 卡片标题栏：标题文字 + 安全提示标签 -->
     <template #header>
       <div class="safety-header">
         <span class="safety-title">🔒 交易安全提醒</span>
         <ElTag class="safety-tag" size="small">校园安全提示</ElTag>
       </div>
     </template>
+    <!-- 可折叠列表，每次只展开一项（accordion 模式） -->
     <ElCollapse accordion>
       <ElCollapseItem v-for="(notice, i) in SAFETY_NOTICES" :key="i" :title="notice.title">
         <p class="safety-content">{{ notice.content }}</p>

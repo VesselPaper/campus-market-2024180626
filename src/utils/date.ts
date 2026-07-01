@@ -1,3 +1,4 @@
+// 将日期字符串格式化为 "YYYY-MM-DD HH:mm" 格式
 export function formatDate(dateStr: string): string {
   const date = new Date(dateStr)
   const y = date.getFullYear()
@@ -8,6 +9,7 @@ export function formatDate(dateStr: string): string {
   return `${y}-${m}-${d} ${h}:${min}`
 }
 
+// 将日期转为相对时间（如"3分钟前"），超过7天则显示完整日期
 export function formatRelativeTime(dateStr: string): string {
   const now = Date.now()
   const date = new Date(dateStr).getTime()
@@ -23,6 +25,7 @@ export function formatRelativeTime(dateStr: string): string {
   return formatDate(dateStr)
 }
 
+// 获取当前时间的字符串，格式为 "YYYY-MM-DD HH:mm:ss"
 export function now(): string {
   const date = new Date()
   const y = date.getFullYear()

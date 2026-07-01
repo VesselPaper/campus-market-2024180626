@@ -3,7 +3,7 @@ import { ref } from 'vue'
 import { ElInput, ElButton, ElMessage, ElCard } from 'element-plus'
 import { useMessageStore } from '@/stores/messageStore'
 import { useUserStore } from '@/stores/userStore'
-import { getBargainReply } from '@/utils/mockReply'
+
 
 const props = defineProps<{
   itemId: number
@@ -32,17 +32,12 @@ async function submitBargain() {
     // 确保会话
     const conv = await messageStore.ensureConversation(props.itemId, props.publisherId)
 
-    // 发送砍价消息
+    // 发送砍价消息（卖家登录后会看到，可以手动回复）
     const bargainContent = `我对这件商品出价 ¥${offerPrice.value}，可以吗？`
     await messageStore.sendTextMessage(bargainContent, props.publisherId, conv.id, 'bargain')
 
-    // 生成砍价回复
-    const replyContent = getBargainReply(offerPrice.value, props.price)
-    await messageStore.sendTextMessage(replyContent, userStore.currentUser.id, conv.id, 'text', props.publisherId)
-
     bargainLog.value.push(`你出价 ¥${offerPrice.value}`)
-    bargainLog.value.push(`卖家回复: ${replyContent}`)
-    ElMessage.success('砍价消息已发送，请在消息中心查看回复')
+    ElMessage.success('砍价消息已发送，等待卖家回复')
     offerPrice.value = null
   } finally {
     submitting.value = false
@@ -52,7 +47,7 @@ async function submitBargain() {
 
 <template>
   <ElCard class="bargain-panel" v-if="price">
-    <h4>模拟砍价</h4>
+    <h4>向卖家出价</h4>
     <p class="bargain-hint">当前价格: ¥{{ price }}，输入你的期望价格与卖家沟通</p>
     <div class="bargain-input">
       <ElInput

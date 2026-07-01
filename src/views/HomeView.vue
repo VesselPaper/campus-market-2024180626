@@ -1,45 +1,62 @@
 <script setup lang="ts">
+// 引入 Vue 生命周期和计算属性
 import { onMounted, computed } from 'vue'
+// 引入路由，用于页面跳转
 import { useRouter } from 'vue-router'
+// 引入 Element Plus 的布局组件和提示组件
 import { ElRow, ElCol, ElAlert } from 'element-plus'
+// 引入各状态管理 store
 import { useUserStore } from '@/stores/userStore'
 import { useItemStore } from '@/stores/itemStore'
 import { useFavoriteStore } from '@/stores/favoriteStore'
 import { useMessageStore } from '@/stores/messageStore'
+// 引入常量（商品类型定义）
 import { ITEM_TYPES } from '@/utils/constants'
+// 引入计算热门商品的工具函数
 import { calcHotItems } from '@/utils/statistics'
+// 引入子组件
 import MarketItemCard from '@/components/MarketItemCard.vue'
 import BannerCarousel from '@/components/BannerCarousel.vue'
 import BackToTop from '@/components/BackToTop.vue'
 import SafetyNotice from '@/components/SafetyNotice.vue'
 
+// 初始化路由和各个 store
 const router = useRouter()
 const userStore = useUserStore()
 const itemStore = useItemStore()
 const favoriteStore = useFavoriteStore()
 const messageStore = useMessageStore()
 
+// 计算属性：根据访问量等指标算出热门推荐商品列表
 const hotItems = computed(() => calcHotItems(itemStore.items))
 
+// 组件挂载时：加载商品列表，如果用户已登录则同时加载收藏和消息
 onMounted(async () => {
-  await itemStore.fetchItems()
-  if (userStore.currentUser) {
-    await Promise.all([
-      favoriteStore.fetchFavorites(),
-      messageStore.fetchConversations(),
-    ])
+  try {
+    await itemStore.fetchItems()
+    if (userStore.currentUser) {
+      await Promise.all([
+        favoriteStore.fetchFavorites(),
+        messageStore.fetchConversations(),
+      ])
+    }
+  } catch {
+    // 即使加载出错，页面也能正常显示（推荐区显示"暂无推荐内容"）
   }
 })
 
+// 跳转到集市列表页，可传类型参数
 function goToList(type?: string) {
   const query = type ? { type } : {}
   router.push({ name: 'market-list', query })
 }
 
+// 跳转到发布信息页
 function goToPublish() {
   router.push({ name: 'publish' })
 }
 
+// 每种商品类型对应的图标
 const typeIcons: Record<string, string> = {
   secondhand: '📦',
   lostfound: '🔍',
@@ -47,6 +64,7 @@ const typeIcons: Record<string, string> = {
   errand: '🏃',
 }
 
+// 每种商品类型对应的主题色
 const typeColors: Record<string, string> = {
   secondhand: '#FF6B35',
   lostfound: '#FDCB6E',
@@ -58,6 +76,7 @@ const typeColors: Record<string, string> = {
 
 <template>
   <div class="home-page">
+    <!-- 错误提示横幅 -->
     <ElAlert
       v-if="itemStore.error"
       :title="itemStore.error"
@@ -70,7 +89,7 @@ const typeColors: Record<string, string> = {
     <!-- 推荐大屏 -->
     <BannerCarousel />
 
-    <!-- 快捷入口 -->
+    <!-- 快捷入口：展示四种商品类型入口卡片 -->
     <div class="section">
       <h3 class="section-title">逛逛集市</h3>
       <ElRow :gutter="16">
@@ -90,7 +109,7 @@ const typeColors: Record<string, string> = {
       </ElRow>
     </div>
 
-    <!-- 快速操作 -->
+    <!-- 快速操作：浏览全部和发布信息两个快捷按钮 -->
     <div class="quick-actions">
       <div class="quick-action-card quick-browse" @click="goToList()">
         <span class="qa-icon">🔍</span>
@@ -104,7 +123,7 @@ const typeColors: Record<string, string> = {
       </div>
     </div>
 
-    <!-- 推荐商品 -->
+    <!-- 推荐商品列表（按热度排序） -->
     <div class="section">
       <h3 class="section-title">推荐商品</h3>
       <div v-if="hotItems.length > 0" class="item-list">
@@ -116,11 +135,16 @@ const typeColors: Record<string, string> = {
         />
       </div>
       <p v-else class="empty-hint">暂无推荐内容</p>
+      <div class="section-footer" @click="goToList()">
+        <span class="more-link">查看更多</span>
+        <span class="more-arrow">→</span>
+      </div>
     </div>
 
-    <!-- 安全提醒 -->
+    <!-- 安全提醒横幅 -->
     <SafetyNotice />
 
+    <!-- 回到顶部按钮 -->
     <BackToTop />
   </div>
 </template>
@@ -310,6 +334,32 @@ const typeColors: Record<string, string> = {
   font-size: 16px;
   opacity: 0.5;
   transition: all var(--transition-base);
+}
+
+/* ── 查看更多 ── */
+.section-footer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 16px 0 4px;
+  cursor: pointer;
+  color: var(--c-text-muted);
+  transition: color 0.15s;
+}
+.section-footer:hover {
+  color: var(--c-primary);
+}
+.more-link {
+  font-size: 14px;
+  font-weight: 500;
+}
+.more-arrow {
+  font-size: 14px;
+  transition: transform 0.15s;
+}
+.section-footer:hover .more-arrow {
+  transform: translateX(4px);
 }
 
 /* ── Responsive ── */
