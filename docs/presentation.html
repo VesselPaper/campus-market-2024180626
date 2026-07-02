@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>校园轻集市 — 答辩展示</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif; background: #1a1a2e; color: #fff; }
+  .slide { width: 100vw; height: 100vh; display: none; justify-content: center; align-items: center; padding: 60px; position: relative; }
+  .slide.active { display: flex; }
+  .slide-inner { max-width: 1100px; width: 100%; }
+  .nav { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); display: flex; gap: 10px; z-index: 100; }
+  .nav button { width: 12px; height: 12px; border-radius: 50%; border: none; cursor: pointer; background: rgba(255,255,255,0.3); transition: 0.3s; }
+  .nav button.active { background: #FF6B35; width: 30px; border-radius: 6px; }
+  .nav-arrows { position: fixed; right: 30px; top: 50%; transform: translateY(-50%); display: flex; flex-direction: column; gap: 10px; z-index: 100; }
+  .nav-arrows button { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: #fff; width: 40px; height: 40px; border-radius: 50%; cursor: pointer; font-size: 18px; transition: 0.3s; }
+  .nav-arrows button:hover { background: #FF6B35; border-color: #FF6B35; }
+
+  /* Cover */
+  .cover { background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%); text-align: center; }
+  .cover h1 { font-size: 56px; font-weight: 800; margin-bottom: 10px; }
+  .cover h1 span { background: linear-gradient(135deg, #FF6B35, #FFD166); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+  .cover .subtitle { font-size: 20px; color: rgba(255,255,255,0.6); margin-bottom: 40px; }
+  .cover .meta { display: flex; justify-content: center; gap: 40px; font-size: 16px; color: rgba(255,255,255,0.7); }
+  .cover .meta div { text-align: center; }
+  .cover .meta .label { font-size: 13px; color: rgba(255,255,255,0.4); margin-bottom: 4px; }
+  .cover .icon { font-size: 72px; margin-bottom: 20px; }
+
+  /* Common slide styles */
+  .slide-title { font-size: 32px; font-weight: 700; margin-bottom: 10px; }
+  .slide-title .hl { color: #FF6B35; }
+  .slide-subtitle { font-size: 16px; color: rgba(255,255,255,0.5); margin-bottom: 40px; }
+
+  /* Content styles */
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; }
+  .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 24px; }
+  .grid-4 { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 16px; }
+  .card { background: rgba(255,255,255,0.06); border-radius: 16px; padding: 24px; border: 1px solid rgba(255,255,255,0.08); transition: 0.3s; }
+  .card:hover { background: rgba(255,255,255,0.1); transform: translateY(-2px); }
+  .card h3 { font-size: 18px; margin-bottom: 10px; color: #FFD166; }
+  .card p, .card li { font-size: 14px; color: rgba(255,255,255,0.7); line-height: 1.7; }
+  .card ul { list-style: none; }
+  .card ul li::before { content: "▸ "; color: #FF6B35; }
+  .card .big-icon { font-size: 36px; margin-bottom: 10px; display: block; }
+  .member-card { text-align: center; }
+  .member-card .avatar { width: 80px; height: 80px; border-radius: 50%; background: linear-gradient(135deg, #FF6B35, #FFD166); display: flex; align-items: center; justify-content: center; font-size: 32px; margin: 0 auto 12px; }
+  .tag { display: inline-block; padding: 2px 10px; border-radius: 20px; font-size: 12px; background: rgba(255,107,53,0.2); color: #FF6B35; margin: 2px; }
+
+  /* Code block */
+  .code-block { background: rgba(0,0,0,0.4); border-radius: 12px; padding: 20px; font-family: 'JetBrains Mono', 'Fira Code', monospace; font-size: 13px; line-height: 1.6; overflow-x: auto; border: 1px solid rgba(255,255,255,0.08); }
+  .code-block .comment { color: #6a9955; }
+  .code-block .keyword { color: #569cd6; }
+  .code-block .string { color: #ce9178; }
+  .code-block .fn { color: #dcdcaa; }
+  .code-block .type { color: #4ec9b0; }
+
+  /* Architecture flow */
+  .flow { display: flex; align-items: center; justify-content: center; gap: 12px; flex-wrap: wrap; }
+  .flow-item { background: rgba(255,255,255,0.08); border-radius: 12px; padding: 16px 24px; text-align: center; min-width: 100px; }
+  .flow-item .fi-icon { font-size: 28px; display: block; margin-bottom: 6px; }
+  .flow-item .fi-label { font-size: 13px; color: rgba(255,255,255,0.7); }
+  .flow-arrow { font-size: 24px; color: #FF6B35; }
+
+  /* Feature list */
+  .feature-item { display: flex; align-items: center; gap: 12px; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
+  .feature-item:last-child { border: none; }
+  .feature-item .fi-dot { width: 8px; height: 8px; border-radius: 50%; background: #FF6B35; flex-shrink: 0; }
+  .feature-item .fi-name { font-size: 15px; font-weight: 500; min-width: 80px; }
+  .feature-item .fi-desc { font-size: 14px; color: rgba(255,255,255,0.6); }
+
+  /* Summary */
+  .stat-number { font-size: 42px; font-weight: 800; color: #FF6B35; }
+  .stat-label { font-size: 14px; color: rgba(255,255,255,0.5); }
+
+  .page-showcase { text-align: center; }
+  .page-showcase .mockup { width: 100%; max-width: 900px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 20px 60px rgba(0,0,0,0.3); margin-top: 20px; }
+
+  /* Two column code + explanation */
+  .code-explanation { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; }
+  .explain-item { margin-bottom: 20px; }
+  .explain-item h4 { color: #FFD166; margin-bottom: 6px; font-size: 15px; }
+  .explain-item p { font-size: 13px; color: rgba(255,255,255,0.7); line-height: 1.6; }
+
+  .highlight-box { background: rgba(255,107,53,0.1); border-left: 3px solid #FF6B35; border-radius: 0 8px 8px 0; padding: 16px 20px; margin: 16px 0; }
+  .highlight-box p { color: rgba(255,255,255,0.8); font-size: 14px; line-height: 1.6; }
+
+  @media (max-width: 768px) {
+    .slide { padding: 30px; }
+    .grid-2, .grid-3, .grid-4, .code-explanation { grid-template-columns: 1fr; }
+    .cover h1 { font-size: 32px; }
+    .slide-title { font-size: 24px; }
+    .cover .meta { flex-direction: column; gap: 16px; }
+    .flow { gap: 8px; }
+    .flow-item { padding: 10px 16px; min-width: 70px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ====== SLIDE 1: 封面 ====== -->
+<div class="slide cover active">
+  <div class="slide-inner">
+    <div class="icon">🛍️</div>
+    <h1><span>校园轻集市</span></h1>
+    <p class="subtitle">Vue3 + JSON Server 全功能校园信息平台 · 前端工程实践项目</p>
+    <div class="meta">
+      <div>
+        <div class="label">小组成员</div>
+        <div>成员 A &amp; 成员 B</div>
+      </div>
+      <div>
+        <div class="label">指导教师</div>
+        <div>XXX 老师</div>
+      </div>
+      <div>
+        <div class="label">实训周期</div>
+        <div>2026.06.27 — 2026.07.02</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ====== SLIDE 2: 小组分工 ====== -->
+<div class="slide">
+  <div class="slide-inner">
+    <h2 class="slide-title">👥 小组分工</h2>
+    <p class="slide-subtitle">两人协作完成 7 天实训项目</p>
+    <div class="grid-2">
+      <div class="card member-card">
+        <div class="avatar">A</div>
+        <h3>成员 A</h3>
+        <div style="margin-bottom: 12px;">
+          <span class="tag">项目初始化</span>
+          <span class="tag">页面骨架</span>
+          <span class="tag">路由配置</span>
+          <span class="tag">Mock 数据</span>
+        </div>
+        <ul>
+          <li>Vue3 项目搭建与依赖管理</li>
+          <li>12 个页面组件创建与路由配置</li>
+          <li>JSON Server 数据建模与 API 设计</li>
+          <li>db.json 初始数据生成</li>
+        </ul>
+      </div>
+      <div class="card member-card">
+        <div class="avatar">B</div>
+        <h3>成员 B</h3>
+        <div style="margin-bottom: 12px;">
+          <span class="tag">状态管理</span>
+          <span class="tag">消息系统</span>
+          <span class="tag">数据看板</span>
+          <span class="tag">文档整理</span>
+        </div>
+        <ul>
+          <li>Pinia Store 设计与实现</li>
+          <li>消息中心与聊天功能开发</li>
+          <li>ECharts 图表与数据可视化</li>
+          <li>文档归档与答辩准备</li>
+        </ul>
+      </div>
+    </div>
+    <div class="highlight-box" style="margin-top: 20px;">
+      <p><strong>🤝 协作说明：</strong>两人使用 Git 进行版本管理，各自在功能分支上开发，通过 Pull Request 合并。AI 辅助开发过程中，双方共同审查 AI 生成代码，确保代码质量和一致性。</p>
+    </div>
+  </div>
+</div>
+
+<!-- ====== SLIDE 3: 网页展示（过渡页） ====== -->
+<div class="slide">
+  <div class="slide-inner" style="text-align: center;">
+    <div style="font-size: 80px; margin-bottom: 24px;">🖥️</div>
+    <h2 class="slide-title">网页功能展示</h2>
+    <p class="slide-subtitle">以下为项目运行的实际情况</p>
+    <div class="highlight-box" style="text-align: left; max-width: 600px; margin: 0 auto;">
+      <p><strong>演示流程：</strong></p>
+      <p>① 首页轮播与快捷入口 → ② 集市列表与筛选 → ③ 商品详情与收藏</p>
+      <p>④ 信息发布 → ⑤ 消息中心聊天 → ⑥ 个人中心 → ⑦ 数据看板</p>
+    </div>
+    <p style="margin-top: 30px; color: rgba(255,255,255,0.4); font-size: 14px;">（点击导航按钮切换至浏览器演示）</p>
+  </div>
+</div>
+
+<!-- ====== SLIDE 4: 代码架构总览（VS Code 过渡） ====== -->
+<div class="slide">
+  <div class="slide-inner" style="text-align: center;">
+    <div style="font-size: 80px; margin-bottom: 24px;">📂</div>
+    <h2 class="slide-title">项目架构总览</h2>
+    <p class="slide-subtitle">以下在 VS Code 中展示项目结构</p>
+    <div class="grid-3" style="margin-top: 30px;">
+      <div class="card">
+        <span class="big-icon">📄</span>
+        <h3>views/（12 页）</h3>
+        <p>每个页面一个 .vue 文件，template + script + style 三合一</p>
+      </div>
+      <div class="card">
+        <span class="big-icon">🧩</span>
+        <h3>components/（12 个）</h3>
+        <p>通用组件复用：商品卡片、筛选栏、聊天框、图表容器等</p>
+      </div>
+      <div class="card">
+        <span class="big-icon">🔗</span>
+        <h3>API → Store → View</h3>
+        <p>三层架构：API 负责请求、Store 管理状态、View 渲染页面</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ====== SLIDE 5: 核心代码 — 路由配置 ====== -->
+<div class="slide">
+  <div class="slide-inner">
+    <h2 class="slide-title">📌 核心代码 · <span class="hl">路由配置</span></h2>
+    <p class="slide-subtitle">src/router/index.ts — 12 个路由 + 导航守卫</p>
+    <div class="code-explanation">
+      <div>
+        <div class="code-block">
+<span class="comment">// 路由配置（部分）</span><br>
+{ <span class="keyword">path</span>: <span class="string">'/'</span>, <span class="keyword">name</span>: <span class="string">'home'</span>, <span class="keyword">component</span>: HomeView }<br>
+{ <span class="keyword">path</span>: <span class="string">'/market'</span>, <span class="keyword">name</span>: <span class="string">'market-list'</span>, <span class="keyword">component</span>: MarketListView }<br>
+{ <span class="keyword">path</span>: <span class="string">'/item/:id'</span>, <span class="keyword">name</span>: <span class="string">'item-detail'</span>, <span class="keyword">component</span>: ItemDetailView }<br>
+{ <span class="keyword">path</span>: <span class="string">'/publish'</span>, <span class="keyword">name</span>: <span class="string">'publish'</span>, <span class="keyword">component</span>: PublishView }<br>
+{ <span class="keyword">path</span>: <span class="string">'/login'</span>, <span class="keyword">name</span>: <span class="string">'login'</span>, <span class="keyword">component</span>: LoginView }<br>
+{ <span class="keyword">path</span>: <span class="string">'/:pathMatch(.*)*'</span>, <span class="keyword">name</span>: <span class="string">'not-found'</span>, <span class="keyword">component</span>: NotFoundView }<br><br>
+<span class="comment">// 导航守卫：未登录跳转登录页</span><br>
+router.beforeEach(<span class="keyword">async</span> (<span class="type">to</span>) => {<br>
+&nbsp; <span class="keyword">if</span> (to.name !== <span class="string">'login'</span> && ...) {<br>
+&nbsp; &nbsp; <span class="keyword">await</span> userStore.restoreSession()<br>
+&nbsp; &nbsp; <span class="keyword">if</span> (!userStore.currentUser)<br>
+&nbsp; &nbsp; &nbsp; <span class="keyword">return</span> { <span class="keyword">name</span>: <span class="string">'login'</span> }<br>
+&nbsp; }<br>
+})
+        </div>
+      </div>
+      <div>
+        <div class="explain-item">
+          <h4>🎯 设计要点</h4>
+          <p><strong>命名路由</strong> — 每个路由设置 name，导航时用 name 代替 path，避免硬编码 URL</p>
+        </div>
+        <div class="explain-item">
+          <h4>🔀 动态路由</h4>
+          <p><code>/item/:id</code> 通过 URL 参数传递商品 ID，详情页根据 ID 加载对应数据</p>
+        </div>
+        <div class="explain-item">
+          <h4>🛡️ 导航守卫</h4>
+          <p>每次路由跳转前检查登录态，未登录用户自动跳转到身份创建页</p>
+        </div>
+        <div class="explain-item">
+          <h4>🔄 路由重定向</h4>
+          <p>/trade → /market?type=secondhand 等 4 个重定向，简化路由结构</p>
+        </div>
+        <div class="explain-item">
+          <h4>❌ 404 兜底</h4>
+          <p><code>/:pathMatch(.*)*</code> 匹配所有未定义路径，显示 NotFound 页面</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ====== SLIDE 6: 核心代码 — API 封装 ====== -->
+<div class="slide">
+  <div class="slide-inner">
+    <h2 class="slide-title">📌 核心代码 · <span class="hl">API 封装</span></h2>
+    <p class="slide-subtitle">src/api/ — Axios 实例 + 业务 API 模块</p>
+    <div class="code-explanation">
+      <div>
+        <div class="code-block">
+<span class="comment">// request.ts — Axios 实例封装</span><br>
+<span class="keyword">const</span> request = axios.create({<br>
+&nbsp; baseURL: <span class="string">'http://localhost:3000'</span><br>
+})<br>
+request.interceptors.response.use(<br>
+&nbsp; res => res,<br>
+&nbsp; error => {<br>
+&nbsp; &nbsp; ElMessage.error(<span class="string">'后端服务未启动，请检查'</span>)<br>
+&nbsp; &nbsp; <span class="keyword">return</span> Promise.reject(error)<br>
+&nbsp; }<br>
+)<br><br>
+<span class="comment">// itemApi.ts — 商品 API</span><br>
+<span class="keyword">export function</span> <span class="fn">getItems</span>(params) {<br>
+&nbsp; <span class="keyword">return</span> request.get(<span class="string">'/items'</span>, { params })<br>
+}<br>
+<span class="keyword">export function</span> <span class="fn">createItem</span>(data) {<br>
+&nbsp; <span class="keyword">return</span> request.post(<span class="string">'/items'</span>, data)<br>
+}
+        </div>
+      </div>
+      <div>
+        <div class="explain-item">
+          <h4>🎯 封装目的</h4>
+          <p>统一管理 baseURL、错误处理、请求拦截。所有 API 模块共用同一个 Axios 实例</p>
+        </div>
+        <div class="explain-item">
+          <h4>📦 模块划分</h4>
+          <p>按后端资源拆分：itemApi、userApi、favoriteApi、messageApi、noticeApi</p>
+        </div>
+        <div class="explain-item">
+          <h4>🔌 参数映射</h4>
+          <p>前端传 keyword → API 层转为 title_like（JSON Server 语法），组件不关心后端细节</p>
+        </div>
+        <div class="explain-item">
+          <h4>💡 数据流</h4>
+          <p>View 调用 Store → Store 调用 API → API 发起 HTTP 请求 → JSON Server 返回数据</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ====== SLIDE 7: 核心代码 — Pinia Store ====== -->
+<div class="slide">
+  <div class="slide-inner">
+    <h2 class="slide-title">📌 核心代码 · <span class="hl">Pinia 状态管理</span></h2>
+    <p class="slide-subtitle">src/stores/ — 4 个 Store 驱动全应用状态</p>
+    <div class="code-explanation">
+      <div>
+        <div class="code-block">
+<span class="comment">// userStore.ts — 用户状态管理</span><br>
+<span class="keyword">export const</span> useUserStore = <span class="fn">defineStore</span>(<span class="string">'user'</span>, () => {<br>
+&nbsp; <span class="keyword">const</span> currentUser = ref&lt;User | null&gt;(<span class="keyword">null</span>)<br><br>
+&nbsp; <span class="comment">// 从 localStorage 恢复登录</span><br>
+&nbsp; <span class="keyword">async function</span> <span class="fn">restoreSession</span>() {<br>
+&nbsp; &nbsp; <span class="keyword">const</span> id = localStorage.getItem(<span class="string">'campus_market_user_id'</span>)<br>
+&nbsp; &nbsp; <span class="keyword">if</span> (!id) <span class="keyword">return</span> <span class="keyword">false</span><br>
+&nbsp; &nbsp; <span class="keyword">const</span> found = users.value.find(<br>
+&nbsp; &nbsp; &nbsp; u => u.id === Number(id)<br>
+&nbsp; &nbsp; )<br>
+&nbsp; &nbsp; <span class="keyword">if</span> (found) { currentUser.value = found; <span class="keyword">return</span> <span class="keyword">true</span> }<br>
+&nbsp; &nbsp; <span class="keyword">return</span> <span class="keyword">false</span><br>
+&nbsp; }<br><br>
+&nbsp; <span class="keyword">function</span> <span class="fn">clearUser</span>() {<br>
+&nbsp; &nbsp; currentUser.value = <span class="keyword">null</span><br>
+&nbsp; &nbsp; localStorage.removeItem(<span class="string">'campus_market_user_id'</span>)<br>
+&nbsp; }<br><br>
+&nbsp; <span class="keyword">return</span> { currentUser, restoreSession, clearUser, ... }<br>
+})
+        </div>
+      </div>
+      <div>
+        <div class="explain-item">
+          <h4>🎯 为什么需要 Store？</h4>
+          <p>收藏状态需要在列表页、详情页、个人中心三处同步。如果没有 Store，每个页面各自管理数据，收藏后其他页面不知道状态变了。</p>
+        </div>
+        <div class="explain-item">
+          <h4>🔄 状态同步原理</h4>
+          <p>所有页面读写<strong>同一个 Store 实例</strong>。Pinia 基于 Vue 的响应式系统，Store 数据变化时，所有引用了该数据的组件自动重新渲染。</p>
+        </div>
+        <div class="explain-item">
+          <h4>📋 4 个 Store 职责</h4>
+          <p><strong>userStore</strong> — 登录/注册/会话恢复/退出<br>
+          <strong>itemStore</strong> — 商品 CRUD/api 调用封装<br>
+          <strong>favoriteStore</strong> — 收藏切换/favoriteCount 同步<br>
+          <strong>messageStore</strong> — 会话管理/消息发送/未读计数</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ====== SLIDE 8: 核心代码 — 收藏同步 ====== -->
+<div class="slide">
+  <div class="slide-inner">
+    <h2 class="slide-title">📌 核心代码 · <span class="hl">收藏状态同步</span></h2>
+    <p class="slide-subtitle">favoriteStore.ts — 一处修改，处处更新</p>
+    <div class="code-explanation">
+      <div>
+        <div class="code-block">
+<span class="comment">// toggleFavorite — 收藏切换核心逻辑</span><br>
+<span class="keyword">async function</span> <span class="fn">toggleFavorite</span>(itemId: <span class="type">number</span>): <span class="type">Promise</span>&lt;<span class="type">boolean</span>&gt; {<br>
+&nbsp; <span class="keyword">const</span> existing = <span class="keyword">await</span> <span class="fn">getFavoriteRecord</span>(itemId)<br>
+&nbsp; <span class="keyword">if</span> (existing) {<br>
+&nbsp; &nbsp; <span class="comment">// 已收藏 → 取消</span><br>
+&nbsp; &nbsp; <span class="keyword">await</span> <span class="fn">removeFavorite</span>(existing.id)<br>
+&nbsp; &nbsp; favorites.value = favorites.value.filter(<br>
+&nbsp; &nbsp; &nbsp; f => f.id !== existing.id<br>
+&nbsp; &nbsp; )<br>
+&nbsp; } <span class="keyword">else</span> {<br>
+&nbsp; &nbsp; <span class="comment">// 未收藏 → 添加</span><br>
+&nbsp; &nbsp; <span class="keyword">const</span> res = <span class="keyword">await</span> <span class="fn">addFavorite</span>({ userId, itemId, ... })<br>
+&nbsp; &nbsp; favorites.value.push(res.data)<br>
+&nbsp; }<br>
+&nbsp; <span class="comment">// 同步更新 favoriteCount</span><br>
+&nbsp; <span class="keyword">const</span> actualCount = <span class="keyword">await</span> <span class="fn">countFavorites</span>(itemId)<br>
+&nbsp; useItemStore().editItem(itemId, { favoriteCount: actualCount })<br>
+&nbsp; <span class="keyword">return</span> !existing<br>
+}
+        </div>
+      </div>
+      <div>
+        <div class="explain-item">
+          <h4>🎯 乐观更新</h4>
+          <p>点击收藏 → 前端立即更新 UI → 同时异步调用 API。用户获得即时反馈，无需等待网络请求完成。</p>
+        </div>
+        <div class="explain-item">
+          <h4>🔄 跨页面同步</h4>
+          <p>修改 Store 中的 favorites 数组 → 所有页面的收藏列表自动更新。取消收藏后，列表页的收藏按钮立刻恢复为"未收藏"。</p>
+        </div>
+        <div class="explain-item">
+          <h4>🔗 favoriteCount 联动</h4>
+          <p>切换收藏后重新查询实际收藏数，同步更新到 itemStore 中的 favoriteCount 字段。商品卡片上的 ♥ 数字实时反映真实收藏人数。</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ====== SLIDE 9: 核心代码 — 组件通信 ====== -->
+<div class="slide">
+  <div class="slide-inner">
+    <h2 class="slide-title">📌 核心代码 · <span class="hl">组件通信模式</span></h2>
+    <p class="slide-subtitle">Props 向下传数据，Emit 向上发事件，Store 全局共享</p>
+    <div class="grid-3">
+      <div class="card">
+        <span class="big-icon">⬇️</span>
+        <h3>Props 父→子</h3>
+        <div class="code-block" style="font-size: 12px; padding: 14px; margin-top: 10px;">
+<span class="comment">&lt;!-- 父组件 --&gt;</span><br>
+&lt;MarketItemCard<br>
+&nbsp; :item=<span class="string">"item"</span><br>
+&nbsp; :visited=<span class="string">"visited"</span><br>
+/&gt;<br><br>
+<span class="comment">&lt;!-- 子组件接收 --&gt;</span><br>
+defineProps&lt;{<br>
+&nbsp; item: Item<br>
+&nbsp; visited?: <span class="type">boolean</span><br>
+}&gt;()
+        </div>
+      </div>
+      <div class="card">
+        <span class="big-icon">⬆️</span>
+        <h3>Emit 子→父</h3>
+        <div class="code-block" style="font-size: 12px; padding: 14px; margin-top: 10px;">
+<span class="comment">// 子组件发射事件</span><br>
+<span class="keyword">const</span> emit = defineEmits&lt;{<br>
+&nbsp; click: [id: <span class="type">number</span>]<br>
+}&gt;()<br>
+<span class="fn">emit</span>(<span class="string">'click'</span>, item.id)<br><br>
+<span class="comment">// 父组件监听</span><br>
+&lt;MarketItemCard<br>
+&nbsp; @click=<span class="string">"goToDetail"</span><br>
+/&gt;
+        </div>
+      </div>
+      <div class="card">
+        <span class="big-icon">🔄</span>
+        <h3>Store 全局共享</h3>
+        <div class="code-block" style="font-size: 12px; padding: 14px; margin-top: 10px;">
+<span class="comment">// 任何组件都可以读写</span><br>
+<span class="keyword">const</span> userStore = <span class="fn">useUserStore</span>()<br>
+<span class="keyword">const</span> favoriteStore = <span class="fn">useFavoriteStore</span>()<br><br>
+<span class="comment">// 数据变化自动同步到</span><br>
+<span class="comment">// 所有引用了该数据的组件</span><br>
+userStore.currentUser<br>
+favoriteStore.favorites
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ====== SLIDE 10: 项目亮点 ====== -->
+<div class="slide">
+  <div class="slide-inner">
+    <h2 class="slide-title">✨ 项目亮点</h2>
+    <p class="slide-subtitle">7 天实训的核心技术成果</p>
+    <div class="grid-2">
+      <div class="card">
+        <h3>🔗 跨页面状态同步</h3>
+        <p>收藏状态在列表页、详情页、个人中心三处通过 Pinia Store 共享，一处修改处处更新。无需路由传参或事件总线。</p>
+      </div>
+      <div class="card">
+        <h3>📦 按资源拆分的 API 层</h3>
+        <p>5 个 API 模块各司其职，参数映射层隔离前端业务与后端细节。后端接口变更时只需修改 API 层。</p>
+      </div>
+      <div class="card">
+        <h3>🎨 统一设计系统</h3>
+        <p>theme.css 定义暖橙活力风格，全局 CSS 变量控制主色/阴影/圆角/间距。Element Plus 组件样式统一覆盖。</p>
+      </div>
+      <div class="card">
+        <h3>⚡ 图片上传闭环</h3>
+        <p>选择图片 → base64 转换 → POST 上传 → 预览展示 → 退出清理。完整的前端图片处理流程。</p>
+      </div>
+      <div class="card">
+        <h3>📊 数据可视化</h3>
+        <p>ECharts 4 个图表实时统计：类型占比、校区分布、状态统计、热门排行。ChartPanel 组件封装复用。</p>
+      </div>
+      <div class="card">
+        <h3>🤖 AI 协作开发</h3>
+        <p>全程使用 Claude Code 辅助开发，AI 生成骨架和模板，人工审查修改业务逻辑。完整记录 11 次核心 AI 协作过程。</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ====== SLIDE 11: 总结 ====== -->
+<div class="slide">
+  <div class="slide-inner" style="text-align: center;">
+    <div style="font-size: 64px; margin-bottom: 20px;">🏁</div>
+    <h2 class="slide-title">总结与收获</h2>
+    <div class="grid-4" style="margin: 40px 0;">
+      <div>
+        <div class="stat-number">12</div>
+        <div class="stat-label">页面组件</div>
+      </div>
+      <div>
+        <div class="stat-number">12</div>
+        <div class="stat-label">通用组件</div>
+      </div>
+      <div>
+        <div class="stat-number">4</div>
+        <div class="stat-label">Pinia Store</div>
+      </div>
+      <div>
+        <div class="stat-number">7</div>
+        <div class="stat-label">天实训</div>
+      </div>
+    </div>
+    <div class="grid-3" style="text-align: left;">
+      <div class="card">
+        <h3>📚 技术收获</h3>
+        <ul>
+          <li>Vue3 Composition API + script setup</li>
+          <li>Vue Router 命名路由/动态路由/守卫</li>
+          <li>Pinia 状态管理与跨页面同步</li>
+          <li>Axios 封装与 JSON Server Mock</li>
+          <li>Element Plus 组件与样式覆盖</li>
+          <li>ECharts 数据可视化</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>🔧 工程能力</h3>
+        <ul>
+          <li>需求理解与页面组织</li>
+          <li>组件化开发思维</li>
+          <li>Git 版本管理与提交规范</li>
+          <li>AI 协作开发与代码审查</li>
+          <li>项目文档编写</li>
+          <li>功能走查与验收测试</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>📝 AI 协作心得</h3>
+        <ul>
+          <li>AI 适合生成框架，不适合处理精细逻辑</li>
+          <li>AI 代码必须审查修改后才能使用</li>
+          <li>修改前先 Git 提交，防止不可恢复</li>
+          <li>提示词越具体 AI 输出越准确</li>
+          <li>核心代码必须自己能解释</li>
+        </ul>
+      </div>
+    </div>
+    <div class="highlight-box" style="margin-top: 24px;">
+      <p><strong>感谢各位老师聆听！欢迎提问 🙏</strong></p>
+    </div>
+  </div>
+</div>
+
+<!-- Navigation Dots -->
+<div class="nav" id="navDots">
+  <button class="active" onclick="goSlide(0)"></button>
+  <button onclick="goSlide(1)"></button>
+  <button onclick="goSlide(2)"></button>
+  <button onclick="goSlide(3)"></button>
+  <button onclick="goSlide(4)"></button>
+  <button onclick="goSlide(5)"></button>
+  <button onclick="goSlide(6)"></button>
+  <button onclick="goSlide(7)"></button>
+  <button onclick="goSlide(8)"></button>
+  <button onclick="goSlide(9)"></button>
+  <button onclick="goSlide(10)"></button>
+</div>
+
+<!-- Navigation Arrows -->
+<div class="nav-arrows">
+  <button onclick="prevSlide()">↑</button>
+  <button onclick="nextSlide()">↓</button>
+</div>
+
+<script>
+let current = 0;
+const slides = document.querySelectorAll('.slide');
+const dots = document.querySelectorAll('.nav button');
+
+function goSlide(n) {
+  slides[current].classList.remove('active');
+  dots[current].classList.remove('active');
+  current = n;
+  slides[current].classList.add('active');
+  dots[current].classList.add('active');
+}
+
+function nextSlide() {
+  goSlide((current + 1) % slides.length);
+}
+
+function prevSlide() {
+  goSlide((current - 1 + slides.length) % slides.length);
+}
+
+// Keyboard navigation
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'ArrowDown' || e.key === 'ArrowRight') nextSlide();
+  if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') prevSlide();
+});
+</script>
+</body>
+</html>
